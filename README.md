@@ -1,11 +1,14 @@
 merch-portal/
-├── docs/               # SRS, ERD, wireframes (week-1 deliverables)
-├── prisma/             # Prisma schema, migrations
-├── src/                # Next.js source code
-│   ├── app/            # Next.js app router pages
-│   ├── components/     # Reusable UI components
-│   └── lib/            # Helpers (db connection, auth, utils)
-├── public/             # Images, static assets
-├── .env                # Environment variables (DB, API keys)
-├── package.json
-└── README.md
+├── docs/                  # All documentation deliverables
+│   ├── SRS.md             # Software Requirements Spec
+│   ├── ERD.png            # Entity-Relationship Diagram
+│   ├── Wireframes/        # UI mockups (images or Figma exports)
+│   └── Report.md          # Final report or user manual
+│
+├── prisma/                # Database schema and migrations
+│   └── schema.prisma
+│
+├── src/                   # Next.js application code
+│   ├── app/               # Pages and routes (App Router)
+│   ├── components/        # Reusable UI components
+│   ├── lib/               #
