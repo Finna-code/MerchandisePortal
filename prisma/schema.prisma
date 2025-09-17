@@ -1,0 +1,139 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+// prisma/schema.prisma
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  user
+  dept_head
+  admin
+}
+
+enum OrderType {
+  individual
+  group
+}
+
+enum OrderStatus {
+  draft
+  placed
+  paid
+  ready
+  delivered
+  canceled
+}
+
+enum ReviewVisibility {
+  public
+  hidden
+}
+
+model Dept {
+  id    Int     @id @default(autoincrement())
+  name  String  @unique
+  users User[]
+  orders Order[]
+}
+
+model User {
+  id        Int     @id @default(autoincrement())
+  name      String
+  email     String  @unique
+  password  String
+  role      Role    @default(user)
+  deptId    Int?
+  dept      Dept?   @relation(fields: [deptId], references: [id])
+  orders    Order[]
+  reviews   Review[]
+  createdAt DateTime @default(now())
+}
+
+model Product {
+  id          Int       @id @default(autoincrement())
+  name        String
+  slug        String    @unique
+  description String
+  price       Decimal   @db.Decimal(10,2)
+  currency    String    @default("INR")
+  images      Json
+  category    String
+  stock       Int       @default(0)
+  active      Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  items       OrderItem[]
+  reviews     Review[]
+}
+
+model Order {
+  id         Int          @id @default(autoincrement())
+  type       OrderType    @default(individual)
+  status     OrderStatus  @default(draft)
+  userId     Int
+  user       User         @relation(fields: [userId], references: [id])
+  deptId     Int?
+  dept       Dept?        @relation(fields: [deptId], references: [id])
+  subtotal   Decimal      @db.Decimal(10,2)
+  tax        Decimal      @db.Decimal(10,2)
+  total      Decimal      @db.Decimal(10,2)
+  pickupPoint String?
+  windowStart DateTime?
+  windowEnd   DateTime?
+  createdAt  DateTime     @default(now())
+  items      OrderItem[]
+  payment    Payment?
+  reminders  Reminder[]
+}
+
+model OrderItem {
+  id        Int     @id @default(autoincrement())
+  orderId   Int
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId Int
+  product   Product @relation(fields: [productId], references: [id])
+  qty       Int
+  price     Decimal @db.Decimal(10,2)
+}
+
+model Review {
+  id         Int              @id @default(autoincrement())
+  productId  Int
+  product    Product          @relation(fields: [productId], references: [id], onDelete: Cascade)
+  userId     Int
+  user       User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  rating     Int
+  body       String
+  visibility ReviewVisibility @default(public)
+  createdAt  DateTime         @default(now())
+}
+
+model Payment {
+  id              Int     @id @default(autoincrement())
+  orderId         Int     @unique
+  order           Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  razorpayOrderId String  @unique
+  razorpayPayId   String?
+  status          String  // e.g. created|paid|failed
+  createdAt       DateTime @default(now())
+}
+
+model Reminder {
+  id          Int      @id @default(autoincrement())
+  orderId     Int
+  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  kind        String   // 'deadline' | 'pickup'
+  scheduledAt DateTime
+  sentAt      DateTime?
+}
