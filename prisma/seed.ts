@@ -1,6 +1,8 @@
 // prisma/seed.ts
 import { PrismaClient } from "@prisma/client";
+import bcrypt from "bcryptjs";
 const prisma = new PrismaClient();
+
 
 async function main() {
   await prisma.product.createMany({
@@ -10,6 +12,20 @@ async function main() {
     ],
   skipDuplicates: true,
   });
+  const hash = await bcrypt.hash("Passw0rd!", 10);
+  await prisma.user.upsert({
+    where: { email: "admin@demo.test" },
+    update: {},
+    create: { name: "Admin", email: "admin@demo.test", passwordHash: hash, role: "admin" },
+  });
   console.log("Seed complete");
 }
-main().finally(() => prisma.$disconnect());
+
+main()
+  .catch((e) => {
+    console.error(e);
+    process.exit(1);
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
+  });
