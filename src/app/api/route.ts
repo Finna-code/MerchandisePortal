@@ -1,9 +1,5 @@
-import { prisma } from "@/lib/db";
+import { NextResponse } from "next/server";
 
 export async function GET() {
-  try {
-    await prisma.$queryRaw`SELECT 1`;
-    return new Response("ok", { status: 200 });
-  } catch (e) {
-    return new Response("db error", { status: 500 });
-  }
+  return NextResponse.json({ message: "API is running" });
+}
