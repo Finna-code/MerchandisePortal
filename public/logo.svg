@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="MerchPortal logo">
+  <!-- Outer ring -->
+  <circle cx="128" cy="128" r="98" fill="none" stroke="#0ea5e9" stroke-width="14"/>
+  
+  <!-- M (center pivot lowered) -->
+  <path d="M66 170 V90 h20 l18 40 18-40 h20 v80" 
+        fill="none" stroke="#0ea5e9" stroke-width="14" 
+        stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <!-- P (align with M center) -->
+  <path d="M142 90 v40 h30 a20 20 0 0 0 0 -40 h-30" 
+        fill="none" stroke="#0ea5e9" stroke-width="14" 
+        stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

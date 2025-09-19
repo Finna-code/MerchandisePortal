@@ -1,0 +1,15 @@
+<!-- public/merchportal-wordmark.svg -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 160" role="img" aria-label="MerchPortal">
+  <style>
+    :root { --fg:#111827; }
+    .text { font: 700 72px/1.1 system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif; letter-spacing: 0.5px; }
+  </style>
+  <!-- Icon -->
+  <g transform="translate(20,20)">
+    <circle cx="60" cy="60" r="46" fill="none" stroke="var(--fg)" stroke-width="6"/>
+    <path d="M30 90 V30 h12 l10 16 10-16 h12 v60" fill="none" stroke="var(--fg)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M66 30 h22 a12 12 0 0 1 0 24 H66 V30" fill="none" stroke="var(--fg)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <!-- Word -->
+  <text x="140" y="100" class="text" fill="var(--fg)">MerchPortal</text>
+</svg>
