@@ -12,11 +12,23 @@ async function main() {
     ],
   skipDuplicates: true,
   });
+
   const hash = await bcrypt.hash("Passw0rd!", 10);
+
   await prisma.user.upsert({
     where: { email: "admin@demo.test" },
     update: {},
     create: { name: "Admin", email: "admin@demo.test", passwordHash: hash, role: "admin" },
+  });
+  await prisma.user.upsert({
+  where: { email: "user@demo.test" },
+  update: {},
+  create: {
+    name: "User",
+    email: "user@demo.test",
+    passwordHash: hash,
+    role: "user",
+   },
   });
   console.log("Seed complete");
 }
