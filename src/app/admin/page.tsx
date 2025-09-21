@@ -1,8 +1,16 @@
 "use client";
-
 import { useSession } from "next-auth/react";
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
 export default function AdminPage() {
   const { data: session, status } = useSession();
@@ -11,10 +19,10 @@ export default function AdminPage() {
     return (
       <div className="p-6">
         <Skeleton className="h-8 w-1/4" />
-        <div className="mt-4 space-y-2">
-          <Skeleton className="h-4 w-full" />
-          <Skeleton className="h-4 w-full" />
-          <Skeleton className="h-4 w-3/4" />
+        <div className="mt-4 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <Skeleton className="h-48 w-full" />
+          <Skeleton className="h-48 w-full" />
+          <Skeleton className="h-48 w-full" />
         </div>
       </div>
     );
@@ -25,16 +33,64 @@ export default function AdminPage() {
   }
 
   return (
-    <main className="max-w-2xl mx-auto px-4 py-10">
-      <h1 className="text-3xl font-bold mb-6">Admin Dashboard</h1>
-      <div className="bg-white rounded-lg shadow p-6">
-        <p className="mb-2">Welcome, <span className="font-mono">{session?.user?.name || "Admin"}</span>!</p>
-        <p className="mb-2">Email: <span className="font-mono">{session?.user?.email}</span></p>
-        <p className="mb-2">Role: <span className="font-mono uppercase">{session?.user?.role}</span></p>
-        <p className="mb-2">Department: <span className="font-mono">{session?.user?.deptId ?? "N/A"}</span></p>
-      </div>
-      <div className="mt-8 text-gray-600">
-        <p>This is your personalized admin dashboard. More features coming soon!</p>
+    <main className="max-w-7xl mx-auto px-4 py-10">
+      <h1 className="text-3xl font-bold mb-8">Admin Dashboard</h1>
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <Card>
+          <CardHeader>
+            <CardTitle>Manage Products</CardTitle>
+            <CardDescription>
+              Add, edit, or remove products from the store.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p>
+              Control the product catalog, update stock levels, and manage product
+              visibility.
+            </p>
+          </CardContent>
+          <div className="p-6 pt-0">
+            <Button asChild>
+              <Link href="/admin/products">Go to Products</Link>
+            </Button>
+          </div>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>Manage Orders</CardTitle>
+            <CardDescription>
+              View and process customer orders.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p>
+              Track orders from placement to delivery, and manage order statuses.
+            </p>
+          </CardContent>
+          <div className="p-6 pt-0">
+            <Button asChild>
+              <Link href="/admin/orders">Go to Orders</Link>
+            </Button>
+          </div>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>Manage Users</CardTitle>
+            <CardDescription>
+              View and manage user accounts and roles.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p>
+              Manage user roles, departments, and access permissions.
+            </p>
+          </CardContent>
+          <div className="p-6 pt-0">
+            <Button asChild>
+              <Link href="/admin/users">Go to Users</Link>
+            </Button>
+          </div>
+        </Card>
       </div>
     </main>
   );
