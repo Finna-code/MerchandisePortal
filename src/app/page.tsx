@@ -4,8 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import { auth } from "@/auth";
 
 export default async function Home() {
+  const session = await auth();
   const products = await prisma.product.findMany({
     where: { active: true },
     take: 6,
@@ -27,8 +29,17 @@ export default async function Home() {
             Your one-stop shop for exclusive merchandise. High-quality products, fast shipping, and great prices.
           </p>
           <Button asChild size="lg" className="shadow-lg animate-fade-in-up delay-200">
-            <Link href="/signin">
-              Shop Now <ArrowRight className="ml-2 h-5 w-5" />
+            <Link
+              href={
+                !session
+                  ? "/products"
+                  : (session as any)?.user?.role === "admin"
+                  ? "/admin"
+                  : "/dashboard"
+              }
+            >
+              { !session ? "Shop Now" : (session as any)?.user?.role === "admin" ? "Admin Dashboard" : "Dashboard" }
+              <ArrowRight className="ml-2 h-5 w-5" />
             </Link>
           </Button>
         </div>

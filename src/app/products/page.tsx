@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<any[] | null>(null);
@@ -45,7 +46,9 @@ export default function ProductsPage() {
                   <h2 className="text-xl font-semibold mb-2 text-center">{product.name}</h2>
                   <p className="text-gray-600 text-sm mb-2 text-center line-clamp-2">{product.description}</p>
                   <div className="font-bold text-lg mb-2">₹{product.price?.toString?.() ?? product.price}</div>
-                  <Link href={`/products/${product.id}`} className="mt-auto inline-block bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition">View Details</Link>
+                  <Button asChild className="mt-auto">
+                    <Link href={`/products/${product.id}`}>View Details</Link>
+                  </Button>
                 </div>
               );
             })}
