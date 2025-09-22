@@ -4,8 +4,9 @@ import { notFound } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
-export default async function ProductDetailsPage({ params }: { params: { id: string } }) {
-  const id = Number(params.id);
+export default async function ProductDetailsPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id: idParam } = await params;
+  const id = Number(idParam);
   if (!Number.isFinite(id)) return notFound();
 
   const product = await prisma.product.findUnique({ where: { id } });
