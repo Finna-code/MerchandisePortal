@@ -8,6 +8,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/toast";
 import { Select, SelectItem } from "@/components/ui/select";
+import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
+import { Info } from "lucide-react";
 
 const ROLES = ["user", "dept_head", "admin"] as const;
 
@@ -61,7 +63,7 @@ export default function AdminUsersPage() {
       });
       if (!res.ok) throw new Error((await res.json())?.error || "Failed to update role");
       await load();
-      toast({ variant: "success", title: "Role updated", description: `User #${userId} is now ${role}` });
+      toast({ variant: "invert", title: "Role updated", description: `User #${userId} is now ${role}` });
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : "Failed to update role";
       setError(msg);
@@ -104,16 +106,37 @@ export default function AdminUsersPage() {
                     <TableCell>{u.name ?? "-"}</TableCell>
                     <TableCell>{u.email}</TableCell>
                     <TableCell>
-                      <Select
-                        value={u.role}
-                        onValueChange={(val) => updateRole(u.id, val as User["role"])}
-                        aria-label={`Role for user #${u.id}`}
-                        className="min-w-32"
-                      >
-                        {ROLES.map((r) => (
-                          <SelectItem key={r} value={r}>{r}</SelectItem>
-                        ))}
-                      </Select>
+                      <div className="flex items-center gap-2">
+                        <Select
+                          value={u.role}
+                          onValueChange={(val) => updateRole(u.id, val as User["role"])}
+                          aria-label={`Role for user #${u.id}`}
+                          className="min-w-32"
+                          disabled={session?.user?.id === u.id}
+                        >
+                          {ROLES.map((r) => (
+                            <SelectItem key={r} value={r}>{r}</SelectItem>
+                          ))}
+                        </Select>
+                        {session?.user?.id === u.id && (
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <button
+                                  type="button"
+                                  className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-input bg-background text-foreground shadow-sm"
+                                  aria-label="Info: You’ll lock yourself out!"
+                                >
+                                  <Info className="h-4 w-4" />
+                                </button>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                You’ll lock yourself out!
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        )}
+                      </div>
                     </TableCell>
                     <TableCell>{new Date(u.createdAt).toLocaleString()}</TableCell>
                   </TableRow>

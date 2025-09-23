@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/guard";
-import { z } from "zod";
+import { z, ZodError } from "zod";
 
 const bodySchema = z.object({ status: z.enum(["draft","placed","paid","ready","delivered","canceled"]) });
 
@@ -18,8 +18,12 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     const { status } = bodySchema.parse(json);
     const updated = await prisma.order.update({ where: { id }, data: { status } });
     return NextResponse.json(updated);
-  } catch (e: any) {
-    const message = e?.issues?.[0]?.message ?? e?.message ?? "Invalid request";
+  } catch (e: unknown) {
+    const message = e instanceof ZodError
+      ? e.issues?.[0]?.message ?? "Invalid request"
+      : e instanceof Error
+        ? e.message
+        : "Invalid request";
     return NextResponse.json({ error: message }, { status: 400 });
   }
 }

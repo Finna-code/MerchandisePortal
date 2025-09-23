@@ -8,7 +8,7 @@ export type Toast = {
   id: number;
   title?: string;
   description?: string;
-  variant?: "default" | "success" | "destructive";
+  variant?: "default" | "success" | "destructive" | "invert";
   duration?: number; // ms
 };
 
@@ -17,7 +17,22 @@ const ToastContext = createContext<{ toast: (t: Omit<Toast, "id">) => void } | n
 export function ToastProvider({ children }: { children: React.ReactNode }) {
   const [toasts, setToasts] = useState<Toast[]>([]);
   const [mounted, setMounted] = useState(false);
+  const [theme, setTheme] = useState<"light" | "dark">("light");
   useEffect(() => setMounted(true), []);
+  useEffect(() => {
+    if (typeof document !== "undefined") {
+      const initial = (document.documentElement.getAttribute("data-theme") as "light" | "dark" | null) ?? "light";
+      setTheme(initial === "dark" ? "dark" : "light");
+      const onTheme = (e: Event) => {
+        // layout.tsx dispatches CustomEvent('themechange', { detail: { theme } })
+        const detail = (e as CustomEvent<{ theme: string }>).detail;
+        const next = detail?.theme === "dark" ? "dark" : "light";
+        setTheme(next);
+      };
+      window.addEventListener("themechange", onTheme as EventListener);
+      return () => window.removeEventListener("themechange", onTheme as EventListener);
+    }
+  }, []);
   const toast = useCallback((t: Omit<Toast, "id">) => {
     const id = Date.now() + Math.random();
     const duration = t.duration ?? 2500;
@@ -39,11 +54,14 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
                   key={t.id}
                   className={cn(
                     "min-w-64 max-w-sm rounded-md border shadow-lg px-4 py-3 text-sm",
+                    // Theme-aware defaults using design tokens
                     t.variant === "destructive"
                       ? "bg-red-600 text-white border-red-700"
-                      : t.variant === "success"
-                      ? "bg-black text-white border-black"
-                      : "bg-neutral-900 text-white border-neutral-800"
+                      : t.variant === "invert"
+                        ? theme === "dark"
+                          ? "bg-white text-black border-neutral-200"
+                          : "bg-black text-white border-black"
+                        : "bg-background text-foreground border-border"
                   )}
                 >
                   {t.title && <div className="font-semibold mb-0.5">{t.title}</div>}

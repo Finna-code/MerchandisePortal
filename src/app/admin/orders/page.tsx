@@ -69,7 +69,7 @@ export default function AdminOrdersPage() {
       });
       if (!res.ok) throw new Error((await res.json())?.error || "Failed to update");
       await load();
-      toast({ variant: "success", title: "Order updated", description: `Status set to ${newStatus}` });
+      toast({ variant: "invert", title: "Order updated", description: `Status set to ${newStatus}` });
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : "Failed to update order status";
       setError(msg);

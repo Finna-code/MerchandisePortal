@@ -13,6 +13,7 @@ type Props = {
   children: React.ReactNode;
   disabled?: boolean;
   name?: string;
+  title?: string;
 };
 
 export function Select({
@@ -24,6 +25,7 @@ export function Select({
   children,
   disabled,
   name,
+  title,
 }: Props) {
   return (
     <RadixSelect.Root value={value} defaultValue={defaultValue} onValueChange={onValueChange} name={name} disabled={disabled}>
@@ -38,6 +40,7 @@ export function Select({
           className
         )}
         aria-label={placeholder}
+        title={title}
       >
         <RadixSelect.Value placeholder={placeholder} />
         <RadixSelect.Icon>

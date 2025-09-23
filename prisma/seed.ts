@@ -30,6 +30,49 @@ async function main() {
     role: "user",
    },
   });
+
+  // Seed a couple of sample orders if there are none
+  const ordersCount = await prisma.order.count();
+  if (ordersCount === 0) {
+    const user = await prisma.user.findUnique({ where: { email: "user@demo.test" } });
+    const hoodie = await prisma.product.findUnique({ where: { slug: "campus-hoodie" } });
+    const mug = await prisma.product.findUnique({ where: { slug: "logo-mug" } });
+    if (user && hoodie && mug) {
+      // Order 1: placed, two items
+      await prisma.order.create({
+        data: {
+          userId: user.id,
+          type: "individual",
+          status: "placed",
+          subtotal: (hoodie.price as unknown as number) + (mug.price as unknown as number) * 2,
+          tax: 0,
+          total: (hoodie.price as unknown as number) + (mug.price as unknown as number) * 2,
+          items: {
+            create: [
+              { productId: hoodie.id, qty: 1, price: hoodie.price },
+              { productId: mug.id, qty: 2, price: mug.price },
+            ],
+          },
+        },
+      });
+      // Order 2: paid, one item
+      await prisma.order.create({
+        data: {
+          userId: user.id,
+          type: "individual",
+          status: "paid",
+          subtotal: (mug.price as unknown as number) * 3,
+          tax: 0,
+          total: (mug.price as unknown as number) * 3,
+          items: {
+            create: [
+              { productId: mug.id, qty: 3, price: mug.price },
+            ],
+          },
+        },
+      });
+    }
+  }
   console.log("Seed complete");
 }
 

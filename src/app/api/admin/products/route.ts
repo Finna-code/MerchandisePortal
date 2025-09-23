@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/guard";
-import { z } from "zod";
+import { z, ZodError } from "zod";
 
 const createProductSchema = z.object({
   name: z.string().min(1),
@@ -35,7 +35,7 @@ export async function POST(req: Request) {
         name: parsed.name,
         slug: parsed.slug,
         description: parsed.description,
-        price: parsed.price as any,
+        price: parsed.price,
         currency: parsed.currency,
         images: parsed.images,
         category: parsed.category,
@@ -44,8 +44,12 @@ export async function POST(req: Request) {
       },
     });
     return NextResponse.json(product, { status: 201 });
-  } catch (e: any) {
-    const message = e?.issues?.[0]?.message ?? e?.message ?? "Invalid request";
+  } catch (e: unknown) {
+    const message = e instanceof ZodError
+      ? e.issues?.[0]?.message ?? "Invalid request"
+      : e instanceof Error
+        ? e.message
+        : "Invalid request";
     return NextResponse.json({ error: message }, { status: 400 });
   }
 }

@@ -22,7 +22,17 @@ export default function NavigationOverlay() {
       window.__navHideFallback = setTimeout(() => setVisible(false), 1000);
     };
     window.addEventListener("navstart", onStart);
-    return () => window.removeEventListener("navstart", onStart);
+    return () => {
+      window.removeEventListener("navstart", onStart);
+      if (window.__navTimer) {
+        clearTimeout(window.__navTimer);
+        window.__navTimer = undefined;
+      }
+      if (window.__navHideFallback) {
+        clearTimeout(window.__navHideFallback);
+        window.__navHideFallback = undefined;
+      }
+    };
   }, []);
 
   // Hide when route actually changes

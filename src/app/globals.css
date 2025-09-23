@@ -142,6 +142,20 @@ html[data-theme="dark"],
 }
 
 
+/* Hide native number input spinners (we use custom +/- controls) */
+/* Chrome, Safari, Edge, Opera */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+/* Firefox */
+input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+
 
 /* Smooth theme transition: apply only briefly via a class to avoid jank */
 html.theme-animate * {

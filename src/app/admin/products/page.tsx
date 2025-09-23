@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { Plus, Minus } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -48,6 +49,8 @@ export default function AdminProductsPage() {
     category: "",
     stock: "0",
   });
+  const [priceFocused, setPriceFocused] = useState(false);
+  const [stockFocused, setStockFocused] = useState(false);
   const disableCreate = useMemo(() => {
     return !form.name || !form.slug || !form.description || !form.price || !form.category;
   }, [form]);
@@ -59,8 +62,9 @@ export default function AdminProductsPage() {
       if (!res.ok) throw new Error(await res.text());
       const data = await res.json();
       setProducts(data);
-    } catch (e: any) {
-      setError(e?.message ?? "Failed to load products");
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : "Failed to load products";
+      setError(msg);
     } finally {
       setLoading(false);
     }
@@ -94,10 +98,11 @@ export default function AdminProductsPage() {
       if (!res.ok) throw new Error((await res.json())?.error || "Failed to create");
       setForm({ name: "", slug: "", description: "", price: "", currency: "INR", image: "", category: "", stock: "0" });
       await load();
-      toast({ variant: "success", title: "Product created" });
-    } catch (e: any) {
-      setError(e?.message ?? "Failed to create product");
-      toast({ variant: "destructive", title: "Create failed", description: String(e?.message ?? "") });
+      toast({ variant: "invert", title: "Product created" });
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : "Failed to create product";
+      setError(msg);
+      toast({ variant: "destructive", title: "Create failed", description: String(msg) });
     }
   }
 
@@ -111,10 +116,11 @@ export default function AdminProductsPage() {
       });
       if (!res.ok) throw new Error((await res.json())?.error || "Failed to update");
       await load();
-      toast({ variant: "success", title: p.active ? "Product deactivated" : "Product activated" });
-    } catch (e: any) {
-      setError(e?.message ?? "Failed to update product");
-      toast({ variant: "destructive", title: "Update failed", description: String(e?.message ?? "") });
+      toast({ variant: "invert", title: p.active ? "Product deactivated" : "Product activated" });
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : "Failed to update product";
+      setError(msg);
+      toast({ variant: "destructive", title: "Update failed", description: String(msg) });
     }
   }
 
@@ -135,10 +141,80 @@ export default function AdminProductsPage() {
             <Input placeholder="Slug" value={form.slug} onChange={(e) => setForm((f) => ({ ...f, slug: e.target.value }))} />
             <Input placeholder="Category" value={form.category} onChange={(e) => setForm((f) => ({ ...f, category: e.target.value }))} />
             <Input placeholder="Description" value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} />
-            <Input type="number" step="0.01" placeholder="Price" value={form.price} onChange={(e) => setForm((f) => ({ ...f, price: e.target.value }))} />
+            <div className="relative">
+              <Input
+                type="number"
+                step={1}
+                min={0}
+                inputMode="numeric"
+                value={priceFocused ? (form.price === "0" ? "" : form.price) : (!form.price || form.price === "0" ? "" : form.price)}
+                onFocus={() => setPriceFocused(true)}
+                onBlur={() => setPriceFocused(false)}
+                onChange={(e) => setForm((f) => ({ ...f, price: e.target.value }))}
+                className="bg-background dark:bg-input/30 pr-16"
+              />
+              {!priceFocused && (!form.price || form.price === "0") && (
+                <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-muted-foreground/70">
+                  Price
+                </span>
+              )}
+              <div className="absolute inset-y-0 right-1 flex items-center gap-1">
+                <button
+                  type="button"
+                  aria-label="Decrease price"
+                  className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-input bg-background text-foreground shadow-sm"
+                  onClick={() => setForm((f) => ({ ...f, price: String(Math.max(0, (Number(f.price || 0) || 0) - 1)) }))}
+                >
+                  <Minus className="h-3.5 w-3.5" />
+                </button>
+                <button
+                  type="button"
+                  aria-label="Increase price"
+                  className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-input bg-background text-foreground shadow-sm"
+                  onClick={() => setForm((f) => ({ ...f, price: String(Math.max(0, (Number(f.price || 0) || 0) + 1)) }))}
+                >
+                  <Plus className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            </div>
             <Input placeholder="Currency" value={form.currency} onChange={(e) => setForm((f) => ({ ...f, currency: e.target.value }))} />
             <Input placeholder="Image URL" value={form.image} onChange={(e) => setForm((f) => ({ ...f, image: e.target.value }))} />
-            <Input type="number" placeholder="Stock" value={form.stock} onChange={(e) => setForm((f) => ({ ...f, stock: e.target.value }))} />
+            <div className="relative">
+              <Input
+                type="number"
+                step={1}
+                min={0}
+                inputMode="numeric"
+                value={stockFocused ? (form.stock === "0" ? "" : form.stock) : (!form.stock || form.stock === "0" ? "" : form.stock)}
+                onFocus={() => setStockFocused(true)}
+                onBlur={() => setStockFocused(false)}
+                onChange={(e) => setForm((f) => ({ ...f, stock: e.target.value }))}
+                className="bg-background dark:bg-input/30 pr-16"
+              />
+              {!stockFocused && (!form.stock || form.stock === "0") && (
+                <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-muted-foreground/70">
+                  Stock
+                </span>
+              )}
+              <div className="absolute inset-y-0 right-1 flex items-center gap-1">
+                <button
+                  type="button"
+                  aria-label="Decrease stock"
+                  className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-input bg-background text-foreground shadow-sm"
+                  onClick={() => setForm((f) => ({ ...f, stock: String(Math.max(0, (Number(f.stock || 0) || 0) - 1)) }))}
+                >
+                  <Minus className="h-3.5 w-3.5" />
+                </button>
+                <button
+                  type="button"
+                  aria-label="Increase stock"
+                  className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-input bg-background text-foreground shadow-sm"
+                  onClick={() => setForm((f) => ({ ...f, stock: String(Math.max(0, (Number(f.stock || 0) || 0) + 1)) }))}
+                >
+                  <Plus className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            </div>
             <div className="flex items-center"><Button onClick={createProduct} disabled={disableCreate}>Create</Button></div>
           </div>
         </CardContent>

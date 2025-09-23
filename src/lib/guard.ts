@@ -1,15 +1,15 @@
 // src/lib/guard.ts
 import { auth } from "@/auth";
-export async function requireRole(role: "admin" | "user") {
+export async function requireRole(role: "admin" | "user" | "dept_head") {
   const s = await auth();
-  const userRole = (s as any)?.user?.role;
+  const userRole = s?.user?.role;
   if (!s || userRole !== role) return null;
   return s;
 }
 
 export async function requireAdmin() {
   const s = await auth();
-  const userRole = (s as any)?.user?.role;
+  const userRole = s?.user?.role;
   if (!s || userRole !== "admin") return null;
   return s;
 }
