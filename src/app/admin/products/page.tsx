@@ -1,12 +1,14 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { CATEGORIES } from "@/constants/categories";
 import { Plus, Minus } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Select, SelectItem } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/toast";
@@ -139,7 +141,18 @@ export default function AdminProductsPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Input placeholder="Name" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} />
             <Input placeholder="Slug" value={form.slug} onChange={(e) => setForm((f) => ({ ...f, slug: e.target.value }))} />
-            <Input placeholder="Category" value={form.category} onChange={(e) => setForm((f) => ({ ...f, category: e.target.value }))} />
+            <Select
+  value={form.category}
+  onValueChange={(val: string) => setForm((f) => ({ ...f, category: val }))}
+  placeholder="Category"
+  className="min-w-32"
+>
+  {CATEGORIES.map((c) => (
+    <SelectItem key={c} value={c}>
+      {c.charAt(0) + c.slice(1).toLowerCase()}
+    </SelectItem>
+  ))}
+</Select>
             <Input placeholder="Description" value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} />
             <div className="relative">
               <Input
@@ -154,7 +167,10 @@ export default function AdminProductsPage() {
                 className="bg-background dark:bg-input/30 pr-16"
               />
               {!priceFocused && (!form.price || form.price === "0") && (
-                <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-muted-foreground/70">
+                <span
+                  className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-muted-foreground"
+                  aria-hidden
+                >
                   Price
                 </span>
               )}
@@ -192,7 +208,10 @@ export default function AdminProductsPage() {
                 className="bg-background dark:bg-input/30 pr-16"
               />
               {!stockFocused && (!form.stock || form.stock === "0") && (
-                <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-muted-foreground/70">
+                <span
+                  className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-muted-foreground"
+                  aria-hidden
+                >
                   Stock
                 </span>
               )}

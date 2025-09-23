@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/guard";
 import { z, ZodError } from "zod";
+import { CATEGORIES } from "@/constants/categories";
 import type { Prisma } from "@prisma/client";
 
 const updateSchema = z.object({
@@ -11,7 +12,7 @@ const updateSchema = z.object({
   price: z.number().nonnegative().optional(),
   currency: z.string().optional(),
   images: z.array(z.string().url()).optional(),
-  category: z.string().min(1).optional(),
+  category: z.enum(CATEGORIES).optional(),
   stock: z.number().int().nonnegative().optional(),
   active: z.boolean().optional(),
 });

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/guard";
 import { z, ZodError } from "zod";
+import { CATEGORIES } from "@/constants/categories";
 
 const createProductSchema = z.object({
   name: z.string().min(1),
@@ -10,7 +11,8 @@ const createProductSchema = z.object({
   price: z.number().nonnegative(),
   currency: z.string().default("INR"),
   images: z.array(z.string().url()).default([]),
-  category: z.string().min(1),
+  // whitelist category values using the CATEGORIES constant
+  category: z.enum(CATEGORIES),
   stock: z.number().int().nonnegative().default(0),
   active: z.boolean().default(true),
 });

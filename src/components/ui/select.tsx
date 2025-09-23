@@ -32,10 +32,12 @@ export function Select({
       <RadixSelect.Trigger
         className={cn(
           "inline-flex items-center justify-between gap-2",
-          "bg-background text-foreground border border-input",
-          "rounded-md px-3 py-2 text-sm",
-          "shadow-sm",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+          // Opaque background across themes to avoid translucency in dark mode
+          "border border-input bg-card text-card-foreground",
+          "h-9 rounded-md px-3 py-1 text-base md:text-sm",
+          "shadow-xs transition-[color,box-shadow] outline-none",
+          "[&_[data-placeholder]]:text-muted-foreground",
+          "focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]",
           "disabled:cursor-not-allowed disabled:opacity-50",
           className
         )}
@@ -54,13 +56,13 @@ export function Select({
           position="popper"
           className={cn(
             "z-[60] min-w-[10rem] overflow-hidden",
-            "rounded-md border border-input bg-popover text-popover-foreground shadow-md",
+            "rounded-md border border-input bg-card text-card-foreground shadow-xs",
             "data-[state=open]:animate-in data-[state=closed]:animate-out",
             "data-[state=open]:fade-in-0 data-[state=closed]:fade-out-0",
             "data-[side=bottom]:slide-in-from-top-1 data-[side=top]:slide-in-from-bottom-1"
           )}
         >
-          <RadixSelect.Viewport className="p-1">
+          <RadixSelect.Viewport className="p-1 bg-inherit">
             {children}
           </RadixSelect.Viewport>
         </RadixSelect.Content>
