@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { CATEGORIES } from "@/constants/categories";
-import { Plus, Minus } from "lucide-react";
+import { Plus, Minus, Trash } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,9 @@ import { Select, SelectItem } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/toast";
+import ImageUpload from "@/components/admin/ImageUpload";
+import Image from "next/image";
+import DeleteImage from "@/components/admin/DeleteImage";
 
 type Product = {
   id: number;
@@ -26,6 +29,173 @@ type Product = {
   active: boolean;
   createdAt?: string;
 };
+
+function ProductRow({ p, onChanged }: { p: Product; onChanged: () => Promise<void> | void }) {
+  const [edit, setEdit] = useState(false);
+  const [form, setForm] = useState({
+    name: p.name ?? "",
+    slug: p.slug ?? "",
+    description: p.description ?? "",
+    price: String(p.price ?? 0),
+    currency: p.currency ?? "INR",
+    image: (p.images?.[0] as string | undefined) ?? "",
+    category: p.category ?? "",
+    stock: String(p.stock ?? 0),
+    active: p.active ?? true,
+  });
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function save() {
+    setSaving(true);
+    setError(null);
+    try {
+      const res = await fetch(`/api/admin/products/${p.id}` , {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: form.name,
+          slug: form.slug,
+          description: form.description,
+          price: Number(form.price || 0),
+          currency: form.currency || "INR",
+          images: form.image ? [form.image] : [],
+          category: form.category,
+          stock: Number(form.stock || 0),
+          active: Boolean(form.active),
+        }),
+      });
+      if (!res.ok) throw new Error((await res.json())?.error || "Failed to update");
+      setEdit(false);
+      await onChanged();
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "Update failed");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function remove() {
+    if (!confirm(`Delete ${p.name}? This action cannot be undone.` )) return;
+    const res = await fetch(`/api/admin/products/${p.id}` , { method: "DELETE" });
+    if (!res.ok) {
+      setError((await res.json())?.error || "Delete failed");
+      return;
+    }
+    await onChanged();
+  }
+
+  return (
+    <TableRow>
+      {/* Name */}
+      <TableCell className="font-medium">
+        {edit ? (
+          <Input value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} />
+        ) : (
+          p.name
+        )}
+      </TableCell>
+      {/* Slug */}
+      <TableCell>
+        {edit ? (
+          <div className="space-y-2">
+            <Input value={form.slug} onChange={(e) => setForm((f) => ({ ...f, slug: e.target.value }))} />
+            {/* Inline image editor */}
+            <div className="flex items-center gap-2">
+              <Input
+                placeholder="Image URL"
+                value={form.image}
+                onChange={(e) => setForm((f) => ({ ...f, image: e.target.value }))}
+              />
+              <ImageUpload onUploaded={(url) => setForm((f) => ({ ...f, image: url }))} />
+            </div>
+            {form.image && (
+              <div className="flex items-center gap-3">
+                <div className="relative h-10 w-10 overflow-hidden rounded">
+                  <Image src={form.image} alt="" fill className="object-cover" sizes="40px" />
+                </div>
+                <DeleteImage
+                  imageUrl={form.image}
+                  editMode={true}
+                  onDeleted={() => setForm((f) => ({ ...f, image: "" }))}
+                />
+              </div>
+            )}
+          </div>
+        ) : (
+          <span className="text-sm text-muted-foreground">{p.slug}</span>
+        )}
+      </TableCell>
+      {/* Description */}
+      <TableCell>
+        {edit ? (
+          <Input value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} />
+        ) : (
+          <span className="text-sm text-muted-foreground">{p.description}</span>
+        )}
+      </TableCell>
+      {/* Category */}
+      <TableCell>
+        {edit ? (
+          <Select value={form.category} onValueChange={(val: string) => setForm((f) => ({ ...f, category: val }))} placeholder="Category" className="min-w-32">
+            {CATEGORIES.map((c) => (
+              <SelectItem key={c} value={c}>{c.charAt(0) + c.slice(1).toLowerCase()}</SelectItem>
+            ))}
+          </Select>
+        ) : (
+          p.category
+        )}
+      </TableCell>
+      {/* Price */}
+      <TableCell>
+        {edit ? (
+          <Input type="number" step={1} min={0} inputMode="numeric" value={form.price} onChange={(e) => setForm((f) => ({ ...f, price: e.target.value }))} />
+        ) : (
+          `${p.currency} ${typeof p.price === "number" ? p.price.toFixed(2) : String(p.price)}`
+        )}
+      </TableCell>
+      {/* Stock */}
+      <TableCell>
+        {edit ? (
+          <Input type="number" step={1} min={0} inputMode="numeric" value={form.stock} onChange={(e) => setForm((f) => ({ ...f, stock: e.target.value }))} />
+        ) : (
+          p.stock
+        )}
+      </TableCell>
+      {/* Status */}
+      <TableCell>
+        {edit ? (
+          <input type="checkbox" checked={form.active} onChange={(e) => setForm((f) => ({ ...f, active: e.target.checked }))} />
+        ) : (
+          p.active ? "Active" : "Inactive"
+        )}
+      </TableCell>
+      {/* Actions */}
+      <TableCell className="text-right">
+        {edit ? (
+          <div className="flex justify-end gap-2">
+            <Button variant="default" size="sm" disabled={saving} onClick={save}>{saving ? "Saving..." : "Save"}</Button>
+            <Button variant="outline" size="sm" disabled={saving} onClick={() => setEdit(false)}>Cancel</Button>
+          </div>
+        ) : (
+          <div className="flex justify-end gap-2">
+            <Button variant="outline" size="sm" onClick={() => setEdit(true)}>Edit</Button>
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={remove}
+              aria-label={`Delete ${p.name}`}
+              title={`Delete ${p.name}`}
+            >
+              <Trash className="h-4 w-4" />
+            </Button>
+          </div>
+        )}
+        {error && <div className="mt-2 text-sm text-red-600">{error}</div>}
+      </TableCell>
+    </TableRow>
+  );
+}
 
 export default function AdminProductsPage() {
   const { data: session, status } = useSession();
@@ -54,7 +224,7 @@ export default function AdminProductsPage() {
   const [priceFocused, setPriceFocused] = useState(false);
   const [stockFocused, setStockFocused] = useState(false);
   const disableCreate = useMemo(() => {
-    return !form.name || !form.slug || !form.description || !form.price || !form.category;
+    return !form.name || !form.slug || !form.description || !form.price || !form.category || !form.image;
   }, [form]);
 
   async function load() {
@@ -168,13 +338,13 @@ export default function AdminProductsPage() {
               />
               {!priceFocused && (!form.price || form.price === "0") && (
                 <span
-                  className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-muted-foreground"
+                  className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
                   aria-hidden
                 >
                   Price
                 </span>
               )}
-              <div className="absolute inset-y-0 right-1 flex items-center gap-1">
+              <div className="absolute top-1/2 -translate-y-1/2 right-1 flex items-center gap-1">
                 <button
                   type="button"
                   aria-label="Decrease price"
@@ -194,7 +364,35 @@ export default function AdminProductsPage() {
               </div>
             </div>
             <Input placeholder="Currency" value={form.currency} onChange={(e) => setForm((f) => ({ ...f, currency: e.target.value }))} />
-            <Input placeholder="Image URL" value={form.image} onChange={(e) => setForm((f) => ({ ...f, image: e.target.value }))} />
+            <div>
+              <div className="flex items-center gap-2">
+                <Input
+                  placeholder="Image URL"
+                  value={form.image}
+                  onChange={(e) => setForm((f) => ({ ...f, image: e.target.value }))}
+                />
+                <ImageUpload onUploaded={(url) => setForm((f) => ({ ...f, image: url }))} />
+              </div>
+              <p className="mt-1 text-xs text-muted-foreground">Images only, up to 5MB. We compress to WebP automatically.</p>
+              {form.image ? (
+                <div className="mt-2 flex items-center gap-3">
+                  <div className="relative h-16 w-16 overflow-hidden rounded">
+                    <Image
+                      src={form.image}
+                      alt="preview"
+                      fill
+                      className="object-cover"
+                      sizes="64px"
+                    />
+                  </div>
+                  <DeleteImage
+                    imageUrl={form.image}
+                    editMode={true}
+                    onDeleted={() => setForm((f) => ({ ...f, image: "" }))}
+                  />
+                </div>
+              ) : null}
+            </div>
             <div className="relative">
               <Input
                 type="number"
@@ -209,13 +407,13 @@ export default function AdminProductsPage() {
               />
               {!stockFocused && (!form.stock || form.stock === "0") && (
                 <span
-                  className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-muted-foreground"
+                  className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
                   aria-hidden
                 >
                   Stock
                 </span>
               )}
-              <div className="absolute inset-y-0 right-1 flex items-center gap-1">
+              <div className="absolute top-1/2 -translate-y-1/2 right-1 flex items-center gap-1">
                 <button
                   type="button"
                   aria-label="Decrease stock"
@@ -256,6 +454,7 @@ export default function AdminProductsPage() {
                 <TableRow>
                   <TableHead>Name</TableHead>
                   <TableHead>Slug</TableHead>
+                  <TableHead>Description</TableHead>
                   <TableHead>Category</TableHead>
                   <TableHead>Price</TableHead>
                   <TableHead>Stock</TableHead>
@@ -265,21 +464,7 @@ export default function AdminProductsPage() {
               </TableHeader>
               <TableBody>
                 {products.map((p) => (
-                  <TableRow key={p.id}>
-                    <TableCell className="font-medium">{p.name}</TableCell>
-                    <TableCell>{p.slug}</TableCell>
-                    <TableCell>{p.category}</TableCell>
-                    <TableCell>
-                      {p.currency} {typeof p.price === "number" ? p.price.toFixed(2) : String(p.price)}
-                    </TableCell>
-                    <TableCell>{p.stock}</TableCell>
-                    <TableCell>{p.active ? "Active" : "Inactive"}</TableCell>
-                    <TableCell className="text-right">
-                      <Button variant="outline" size="sm" onClick={() => toggleActive(p)}>
-                        {p.active ? "Deactivate" : "Activate"}
-                      </Button>
-                    </TableCell>
-                  </TableRow>
+                  <ProductRow key={p.id} p={p} onChanged={load} />
                 ))}
               </TableBody>
             </Table>
