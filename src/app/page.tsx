@@ -29,7 +29,7 @@ export default async function Home() {
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-8 drop-shadow animate-fade-in-up delay-100">
             Your one-stop shop for exclusive merchandise. High-quality products, fast shipping, and great prices.
           </p>
-          <Button asChild size="lg" className="shadow-lg animate-fade-in-up delay-200 group transition-all duration-150 hover:-translate-y-0.5 hover:shadow-xl focus-visible:shadow-xl">
+          <Button asChild size="lg" className="shadow-lg animate-fade-in-up delay-200 group transition-shadow duration-150 hover:shadow-xl focus-visible:shadow-xl">
             <Link
               href={!session ? "/products" : session?.user?.role === "admin" ? "/admin" : "/dashboard"}
             >
