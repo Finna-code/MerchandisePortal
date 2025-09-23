@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
+import { AddToCartButton } from "@/components/cart/add-to-cart-button";
 
 type ProductLite = {
   id: number;
@@ -54,9 +55,16 @@ export default function ProductsPage() {
                   <h2 className="text-xl font-semibold mb-2 text-center">{product.name}</h2>
                   <p className="text-muted-foreground text-sm mb-2 text-center line-clamp-2">{product.description}</p>
                   <div className="font-bold text-lg mb-2">₹{product.price?.toString?.() ?? product.price}</div>
-                  <Button asChild className="mt-auto transition-all duration-150 hover:-translate-y-0.5 hover:shadow-sm focus-visible:shadow-sm">
-                    <Link href={`/products/${product.id}`}>View Details</Link>
-                  </Button>
+                  <div className="mt-auto flex w-full flex-col gap-2">
+                    <AddToCartButton productId={product.id} className="w-full" />
+                    <Button
+                      asChild
+                      variant="outline"
+                      className="transition-all duration-150 hover:-translate-y-0.5 hover:shadow-sm focus-visible:shadow-sm"
+                    >
+                      <Link href={`/products/${product.id}`}>View Details</Link>
+                    </Button>
+                  </div>
                 </div>
               );
             })}

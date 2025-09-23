@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { SessionProvider } from "next-auth/react";
 import { Header } from "@/components/layout/Header";
+import { CartStateProvider } from "@/components/cart/cart-state-provider";
 import { ToastProvider } from "@/components/ui/toast";
 import NavigationOverlay from "@/components/navigation-overlay";
 import Script from "next/script";
@@ -88,12 +89,14 @@ export default function RootLayout({
         {/* Default theme-color (will be updated by script) */}
         <meta name="theme-color" content="#ffffff" />
         <SessionProvider>
-          <ToastProvider>
-            {/* Global navigation progress overlay */}
-            <NavigationOverlay />
-            <Header />
-            {children}
-          </ToastProvider>
+          <CartStateProvider>
+            <ToastProvider>
+              {/* Global navigation progress overlay */}
+              <NavigationOverlay />
+              <Header />
+              {children}
+            </ToastProvider>
+          </CartStateProvider>
         </SessionProvider>
       </body>
     </html>

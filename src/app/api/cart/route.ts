@@ -19,8 +19,16 @@ function unauthorized() {
   return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 }
 
+function jsonError(message: string, status: number) {
+  return NextResponse.json({ error: message }, { status });
+}
+
 function badRequest(message: string) {
-  return NextResponse.json({ error: message }, { status: 400 });
+  return jsonError(message, 400);
+}
+
+function validationError(message: string) {
+  return jsonError(message, 422);
 }
 
 export async function GET() {
@@ -45,7 +53,7 @@ export async function POST(req: NextRequest) {
   const parsed = postSchema.safeParse(json);
   if (!parsed.success) {
     const message = parsed.error.issues?.[0]?.message ?? "Invalid request";
-    return badRequest(message);
+    return validationError(message);
   }
 
   const userId = Number(session.user.id);
@@ -187,8 +195,14 @@ export async function DELETE() {
   const cart = await prisma.$transaction(async (tx) => {
     const current = await getOrCreateActiveCart(userId, tx);
     await tx.orderItem.deleteMany({ where: { orderId: current.order.id } });
-    return refreshCart(current.order.id, tx);
+    const refreshed = await refreshCart(current.order.id, tx);
+    return serializeCart(refreshed);
   });
 
-  return NextResponse.json({ cart: serializeCart(cart) });
+  return new NextResponse(null, {
+    status: 204,
+    headers: {
+      "X-Cart-State": JSON.stringify(cart),
+    },
+  });
 }

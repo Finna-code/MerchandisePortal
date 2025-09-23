@@ -3,6 +3,7 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { AddToCartButton } from "@/components/cart/add-to-cart-button";
 
 export default async function ProductDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id: idParam } = await params;
@@ -26,9 +27,7 @@ export default async function ProductDetailsPage({ params }: { params: Promise<{
           <div className="text-muted-foreground mb-4">{product.description}</div>
           <div className="text-2xl font-semibold mb-6">₹{product.price?.toString?.() ?? String(product.price)}</div>
           <div className="flex gap-3">
-            <Button asChild className="transition-all duration-150 hover:-translate-y-0.5 hover:shadow-sm focus-visible:shadow-sm">
-              <Link href="/cart">Add to Cart</Link>
-            </Button>
+            <AddToCartButton productId={product.id} />
             <Button asChild variant="outline" className="transition-all duration-150 hover:-translate-y-0.5 hover:shadow-sm focus-visible:shadow-sm">
               <Link href="/products">Back to Products</Link>
             </Button>

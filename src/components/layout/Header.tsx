@@ -6,12 +6,15 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { UserMenu } from "@/components/user-menu";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { useCartState } from "@/components/cart/cart-state-provider";
 import Image from "next/image";
 
 export function Header() {
   const { data: session, status } = useSession();
   const pathname = usePathname();
   const isAdmin = session?.user?.role === "admin";
+  const { cart } = useCartState();
+  const cartCount = cart?.itemCount ?? 0;
 
   const NavLink = ({ href, children }: { href: string; children: React.ReactNode }) => (
     <Link
@@ -37,7 +40,16 @@ export function Header() {
           <Link href="/" className="font-semibold" onClick={() => { try { window.dispatchEvent(new Event('navstart')); } catch {} }}>MerchPortal</Link>
           <nav className="hidden md:flex items-center gap-1">
             <NavLink href="/products">Products</NavLink>
-            <NavLink href="/cart">Cart</NavLink>
+            <NavLink href="/cart">
+              <span className="flex items-center gap-1">
+                Cart
+                {cartCount > 0 && (
+                  <span className="rounded-full bg-primary px-1.5 py-0.5 text-[11px] font-semibold leading-none text-primary-foreground">
+                    {cartCount}
+                  </span>
+                )}
+              </span>
+            </NavLink>
             {status === 'loading' ? (
               <>
                 <span className="h-7 w-24 rounded-md bg-accent/60 animate-pulse" />

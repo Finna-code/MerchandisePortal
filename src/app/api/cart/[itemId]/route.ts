@@ -13,8 +13,16 @@ function unauthorized() {
   return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 }
 
+function jsonError(message: string, status: number) {
+  return NextResponse.json({ error: message }, { status });
+}
+
 function badRequest(message: string) {
-  return NextResponse.json({ error: message }, { status: 400 });
+  return jsonError(message, 400);
+}
+
+function validationError(message: string) {
+  return jsonError(message, 422);
 }
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ itemId: string }> }) {
@@ -37,7 +45,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ it
   const parsed = patchSchema.safeParse(json);
   if (!parsed.success) {
     const message = parsed.error.issues?.[0]?.message ?? "Invalid request";
-    return badRequest(message);
+    return validationError(message);
   }
 
   const qty = parsed.data.qty;

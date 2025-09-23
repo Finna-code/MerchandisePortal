@@ -8,12 +8,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/toast";
 import { Select, SelectItem } from "@/components/ui/select";
+import { formatMoney } from "@/lib/money";
 
 const ORDER_STATUSES = ["cart","pending","paid","canceled"] as const;
-
-const formatMoney = (value: number, currency: string) =>
-  new Intl.NumberFormat("en-IN", { style: "currency", currency }).format(value / 100);
-
 
 type Order = {
   id: number;
