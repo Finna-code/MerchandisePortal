@@ -27,22 +27,18 @@ export default async function UserDashboard() {
       return <div className="text-red-500">Error: User not found</div>;
     }
 
-    // Fetch orders
-  const orders = await prisma.order.findMany({
-      where: { userId: Number(userId) },
-      orderBy: { createdAt: "desc" },
-      take: 5,
-      include: {
-        items: {
-          include: {
-            product: true,
-          },
+    // Fetch orders and product count in parallel for faster TTFB
+    const [orders, productsCount] = await Promise.all([
+      prisma.order.findMany({
+        where: { userId: Number(userId) },
+        orderBy: { createdAt: "desc" },
+        take: 5,
+        include: {
+          items: { include: { product: true } },
         },
-      },
-    });
-
-    // Fetch product count
-  const productsCount = await prisma.product.count();
+      }),
+      prisma.product.count(),
+    ]);
 
     return (
       <div className="space-y-6">

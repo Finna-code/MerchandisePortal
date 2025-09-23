@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { SessionProvider } from "next-auth/react";
-import { UserMenu } from "@/components/user-menu";
 import { Header } from "@/components/layout/Header";
 import { ToastProvider } from "@/components/ui/toast";
+import NavigationOverlay from "@/components/navigation-overlay";
 import Script from "next/script";
 
 const geistSans = Geist({
@@ -89,6 +89,8 @@ export default function RootLayout({
         <meta name="theme-color" content="#ffffff" />
         <SessionProvider>
           <ToastProvider>
+            {/* Global navigation progress overlay */}
+            <NavigationOverlay />
             <Header />
             {children}
           </ToastProvider>

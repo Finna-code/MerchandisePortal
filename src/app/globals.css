@@ -141,10 +141,7 @@ html[data-theme="dark"],
   }
 }
 
-/* Theme-based asset swap for header logo */
-html[data-theme="dark"] img.logo {
-  content: url('/logos/logo-dark.svg');
-}
+
 
 /* Smooth theme transition: apply only briefly via a class to avoid jank */
 html.theme-animate * {

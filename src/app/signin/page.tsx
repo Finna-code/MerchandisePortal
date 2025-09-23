@@ -76,7 +76,7 @@ export default function SignIn() {
   };
 
   return (
-    <main className="flex items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900">
+    <main className="flex items-center justify-center min-h-screen bg-background">
       <Card className="w-full max-w-sm">
         <CardHeader>
           <CardTitle className="text-2xl">Sign In</CardTitle>
@@ -131,7 +131,7 @@ export default function SignIn() {
                           type="button"
                           aria-label={showPassword ? "Hide password" : "Show password"}
                           onClick={() => setShowPassword((s) => !s)}
-                          className="absolute inset-y-0 right-2 my-auto p-1.5 rounded-md text-gray-600 hover:bg-accent hover:text-accent-foreground transition-colors"
+                          className="absolute inset-y-0 right-2 my-auto p-1.5 rounded-md text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
                           tabIndex={-1}
                         >
                           {showPassword ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
