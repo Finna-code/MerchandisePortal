@@ -26,11 +26,9 @@ enum OrderType {
 }
 
 enum OrderStatus {
-  draft
-  placed
+  cart
+  pending
   paid
-  ready
-  delivered
   canceled
 }
 
@@ -40,70 +38,78 @@ enum ReviewVisibility {
 }
 
 model Dept {
-  id    Int     @id @default(autoincrement())
-  name  String  @unique
-  users User[]
+  id     Int     @id @default(autoincrement())
+  name   String  @unique
+  users  User[]
   orders Order[]
 }
 
 model User {
-  id        Int     @id @default(autoincrement())
-  name      String
-  email     String  @unique
-  passwordHash  String
-  role      Role    @default(user)
-  deptId    Int?
-  dept      Dept?   @relation(fields: [deptId], references: [id])
-  orders    Order[]
-  reviews   Review[]
-  createdAt DateTime @default(now())
+  id           Int      @id @default(autoincrement())
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         Role     @default(user)
+  deptId       Int?
+  dept         Dept?    @relation(fields: [deptId], references: [id])
+  orders       Order[]
+  reviews      Review[]
+  createdAt    DateTime @default(now())
 }
 
 model Product {
-  id          Int       @id @default(autoincrement())
+  id          Int         @id @default(autoincrement())
   name        String
-  slug        String    @unique
+  slug        String      @unique
   description String
-  price       Decimal   @db.Decimal(10,2)
-  currency    String    @default("INR")
+  price       Decimal     @db.Decimal(10, 2)
+  currency    String      @default("INR")
   images      Json
   category    String
-  stock       Int       @default(0)
-  active      Boolean   @default(true)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  stock       Int         @default(0)
+  active      Boolean     @default(true)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
   items       OrderItem[]
   reviews     Review[]
 }
 
 model Order {
-  id         Int          @id @default(autoincrement())
-  type       OrderType    @default(individual)
-  status     OrderStatus  @default(draft)
-  userId     Int
-  user       User         @relation(fields: [userId], references: [id])
-  deptId     Int?
-  dept       Dept?        @relation(fields: [deptId], references: [id])
-  subtotal   Decimal      @db.Decimal(10,2)
-  tax        Decimal      @db.Decimal(10,2)
-  total      Decimal      @db.Decimal(10,2)
+  id          Int         @id @default(autoincrement())
+  type        OrderType   @default(individual)
+  status      OrderStatus @default(cart)
+  userId      Int
+  user        User        @relation(fields: [userId], references: [id])
+  deptId      Int?
+  dept        Dept?       @relation(fields: [deptId], references: [id])
+  subtotal    Int         @default(0)
+  tax         Int         @default(0)
+  total       Int         @default(0)
   pickupPoint String?
   windowStart DateTime?
   windowEnd   DateTime?
-  createdAt  DateTime     @default(now())
-  items      OrderItem[]
-  payment    Payment?
-  reminders  Reminder[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  currency    String      @default("INR")
+  cartUserId  Int?        @unique
+  items       OrderItem[]
+  payment     Payment?
+  reminders   Reminder[]
 }
 
 model OrderItem {
-  id        Int     @id @default(autoincrement())
-  orderId   Int
-  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  productId Int
-  product   Product @relation(fields: [productId], references: [id])
-  qty       Int
-  price     Decimal @db.Decimal(10,2)
+  id         Int      @id @default(autoincrement())
+  orderId    Int
+  order      Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId  Int
+  product    Product  @relation(fields: [productId], references: [id])
+  variantId  String?
+  qty        Int
+  unitPrice  Int
+  currency   String   @default("INR")
+  capturedAt DateTime @default(now())
+
+  @@unique([orderId, productId, variantId])
 }
 
 model Review {
@@ -119,20 +125,20 @@ model Review {
 }
 
 model Payment {
-  id              Int     @id @default(autoincrement())
-  orderId         Int     @unique
-  order           Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  razorpayOrderId String  @unique
+  id              Int      @id @default(autoincrement())
+  orderId         Int      @unique
+  order           Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  razorpayOrderId String   @unique
   razorpayPayId   String?
-  status          String  // e.g. created|paid|failed
+  status          String // e.g. created|paid|failed
   createdAt       DateTime @default(now())
 }
 
 model Reminder {
-  id          Int      @id @default(autoincrement())
+  id          Int       @id @default(autoincrement())
   orderId     Int
-  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  kind        String   // 'deadline' | 'pickup'
+  order       Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  kind        String // 'deadline' | 'pickup'
   scheduledAt DateTime
   sentAt      DateTime?
 }

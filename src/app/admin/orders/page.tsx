@@ -9,7 +9,11 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/toast";
 import { Select, SelectItem } from "@/components/ui/select";
 
-const ORDER_STATUSES = ["draft","placed","paid","ready","delivered","canceled"] as const;
+const ORDER_STATUSES = ["cart","pending","paid","canceled"] as const;
+
+const formatMoney = (value: number, currency: string) =>
+  new Intl.NumberFormat("en-IN", { style: "currency", currency }).format(value / 100);
+
 
 type Order = {
   id: number;
@@ -18,11 +22,12 @@ type Order = {
   subtotal: number;
   tax: number;
   total: number;
+  currency: string;
   pickupPoint?: string | null;
   createdAt: string;
   user: { id: number; name: string | null; email: string };
   dept?: { id: number; name: string } | null;
-  items: { id: number; qty: number; price: number; product: { id: number; name: string } }[];
+  items: { id: number; qty: number; unitPrice: number; currency: string; product: { id: number; name: string } }[];
 };
 
 export default function AdminOrdersPage() {
@@ -114,9 +119,7 @@ export default function AdminOrdersPage() {
                     <TableCell>#{o.id}</TableCell>
                     <TableCell>{o.user?.name ?? o.user?.email}</TableCell>
                     <TableCell className="capitalize">{o.type}</TableCell>
-                    <TableCell>
-                      ₹{typeof o.total === "number" ? o.total.toFixed(2) : String(o.total)}
-                    </TableCell>
+                    <TableCell>{formatMoney(o.total, o.currency)}</TableCell>
                     <TableCell className="capitalize">{o.status}</TableCell>
                     <TableCell>{new Date(o.createdAt).toLocaleString()}</TableCell>
                     <TableCell className="text-right">
@@ -141,3 +144,5 @@ export default function AdminOrdersPage() {
     </main>
   );
 }
+
+

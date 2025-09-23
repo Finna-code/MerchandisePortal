@@ -3,7 +3,7 @@ import { prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/guard";
 import { z, ZodError } from "zod";
 
-const bodySchema = z.object({ status: z.enum(["draft","placed","paid","ready","delivered","canceled"]) });
+const bodySchema = z.object({ status: z.enum(["cart","pending","paid","canceled"]) });
 
 export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await requireAdmin();
@@ -16,7 +16,19 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
   try {
     const json = await req.json();
     const { status } = bodySchema.parse(json);
-    const updated = await prisma.order.update({ where: { id }, data: { status } });
+
+    const existing = await prisma.order.findUnique({ where: { id }, select: { userId: true } });
+    if (!existing) {
+      return NextResponse.json({ error: "Order not found" }, { status: 404 });
+    }
+
+    const updated = await prisma.order.update({
+      where: { id },
+      data: {
+        status,
+        cartUserId: status === "cart" ? existing.userId : null,
+      },
+    });
     return NextResponse.json(updated);
   } catch (e: unknown) {
     const message = e instanceof ZodError
@@ -27,3 +39,5 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     return NextResponse.json({ error: message }, { status: 400 });
   }
 }
+
+
