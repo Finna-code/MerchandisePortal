@@ -1,13 +1,13 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/toast";
+import { Select, SelectItem } from "@/components/ui/select";
 
 const ORDER_STATUSES = ["draft","placed","paid","ready","delivered","canceled"] as const;
 
@@ -46,8 +46,9 @@ export default function AdminOrdersPage() {
       if (!res.ok) throw new Error(await res.text());
       const data = await res.json();
       setOrders(data);
-    } catch (e: any) {
-      setError(e?.message ?? "Failed to load orders");
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : "Failed to load orders";
+      setError(msg);
     } finally {
       setLoading(false);
     }
@@ -69,8 +70,8 @@ export default function AdminOrdersPage() {
       if (!res.ok) throw new Error((await res.json())?.error || "Failed to update");
       await load();
       toast({ variant: "success", title: "Order updated", description: `Status set to ${newStatus}` });
-    } catch (e: any) {
-      const msg = e?.message ?? "Failed to update order status";
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : "Failed to update order status";
       setError(msg);
       toast({ variant: "destructive", title: "Update failed", description: String(msg) });
     }
@@ -119,15 +120,16 @@ export default function AdminOrdersPage() {
                     <TableCell className="capitalize">{o.status}</TableCell>
                     <TableCell>{new Date(o.createdAt).toLocaleString()}</TableCell>
                     <TableCell className="text-right">
-                      <select
-                        className="border rounded px-2 py-1 text-sm"
+                      <Select
                         value={o.status}
-                        onChange={(e) => updateStatus(o.id, e.target.value as Order["status"]) }
+                        onValueChange={(val) => updateStatus(o.id, val as Order["status"])}
+                        aria-label={`Status for order #${o.id}`}
+                        className="min-w-36"
                       >
                         {ORDER_STATUSES.map((s) => (
-                          <option key={s} value={s}>{s}</option>
+                          <SelectItem key={s} value={s}>{s}</SelectItem>
                         ))}
-                      </select>
+                      </Select>
                     </TableCell>
                   </TableRow>
                 ))}

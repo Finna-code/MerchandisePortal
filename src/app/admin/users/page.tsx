@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/toast";
+import { Select, SelectItem } from "@/components/ui/select";
 
 const ROLES = ["user", "dept_head", "admin"] as const;
 
@@ -39,8 +40,9 @@ export default function AdminUsersPage() {
       const res = await fetch("/api/admin/users", { cache: "no-store" });
       if (!res.ok) throw new Error(await res.text());
       setUsers(await res.json());
-    } catch (e: any) {
-      setError(e?.message ?? "Failed to load users");
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : "Failed to load users";
+      setError(msg);
     } finally {
       setLoading(false);
     }
@@ -60,8 +62,8 @@ export default function AdminUsersPage() {
       if (!res.ok) throw new Error((await res.json())?.error || "Failed to update role");
       await load();
       toast({ variant: "success", title: "Role updated", description: `User #${userId} is now ${role}` });
-    } catch (e: any) {
-      const msg = e?.message ?? "Failed to update role";
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : "Failed to update role";
       setError(msg);
       toast({ variant: "destructive", title: "Update failed", description: String(msg) });
     }
@@ -102,15 +104,16 @@ export default function AdminUsersPage() {
                     <TableCell>{u.name ?? "-"}</TableCell>
                     <TableCell>{u.email}</TableCell>
                     <TableCell>
-                      <select
-                        className="border rounded px-2 py-1 text-sm"
+                      <Select
                         value={u.role}
-                        onChange={(e) => updateRole(u.id, e.target.value as User["role"]) }
+                        onValueChange={(val) => updateRole(u.id, val as User["role"])}
+                        aria-label={`Role for user #${u.id}`}
+                        className="min-w-32"
                       >
                         {ROLES.map((r) => (
-                          <option key={r} value={r}>{r}</option>
+                          <SelectItem key={r} value={r}>{r}</SelectItem>
                         ))}
-                      </select>
+                      </Select>
                     </TableCell>
                     <TableCell>{new Date(u.createdAt).toLocaleString()}</TableCell>
                   </TableRow>

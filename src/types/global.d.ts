@@ -7,6 +7,7 @@ export {};
 declare global {
   interface Window {
     __navTimer?: ReturnType<typeof setTimeout>;
+    __navHideFallback?: ReturnType<typeof setTimeout>;
   }
 
   interface WindowEventMap {

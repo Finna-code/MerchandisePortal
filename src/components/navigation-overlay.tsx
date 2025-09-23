@@ -17,6 +17,9 @@ export default function NavigationOverlay() {
       const t = setTimeout(() => setVisible(true), 100);
       // Store timer to clear if needed
       window.__navTimer = t;
+      // Also set a fallback auto-hide in case no path change occurs
+      if (window.__navHideFallback) clearTimeout(window.__navHideFallback);
+      window.__navHideFallback = setTimeout(() => setVisible(false), 1000);
     };
     window.addEventListener("navstart", onStart);
     return () => window.removeEventListener("navstart", onStart);
@@ -31,7 +34,12 @@ export default function NavigationOverlay() {
       // Ensure we show at least a minimal animation frame
       setVisible(true);
     }
-    if (!visible) return;
+    // Clear fallback and schedule a short hide for real navigations
+    if (window.__navHideFallback) {
+      clearTimeout(window.__navHideFallback);
+      window.__navHideFallback = undefined;
+    }
+    // Always schedule a hide after a real navigation, regardless of current state
     const t = setTimeout(() => setVisible(false), 180);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -46,15 +54,14 @@ export default function NavigationOverlay() {
         (visible ? "opacity-100" : "opacity-0 pointer-events-none")
       }
     >
-      <div className="h-full w-1/3 bg-foreground/70 animate-[progress_0.7s_ease-in-out_infinite] rounded-r-full" />
+      <div className="h-full w-0 bg-foreground/70 animate-[progress_0.8s_ease-out_forwards] rounded-r-full" />
       <style>{`
         @keyframes progress {
-          0% { margin-left: 0; width: 10%; }
-          50% { margin-left: 35%; width: 25%; }
-          100% { margin-left: 100%; width: 10%; }
+          0% { width: 0%; }
+          100% { width: 100%; }
         }
         @media (prefers-reduced-motion: reduce) {
-          .animate-[progress_0.7s_ease-in-out_infinite] { animation: none; }
+          .animate-[progress_0.8s_ease-out_forwards] { animation: none; }
         }
       `}</style>
     </div>,
