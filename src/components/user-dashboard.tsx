@@ -1,5 +1,6 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/db";
+import { formatMoney } from "@/lib/money";
 import {
   Card,
   CardContent,
@@ -121,7 +122,7 @@ export default async function UserDashboard() {
                     <TableRow key={order.id}>
                       <TableCell>{order.id}</TableCell>
                       <TableCell>{order.status}</TableCell>
-                      <TableCell>${order.total.toString()}</TableCell>
+                      <TableCell>{formatMoney(order.total, order.currency)}</TableCell>
                       <TableCell>
                         {new Date(order.createdAt).toLocaleDateString()}
                       </TableCell>

@@ -116,13 +116,14 @@ export async function getOrCreateActiveCart(
       cart.tax !== totals.tax ||
       cart.total !== totals.total
     ) {
+      const { subtotal, tax, total } = totals;
       await db.order.update({
         where: { id: cart.id },
-        data: totals,
+        data: { subtotal, tax, total },
       });
-      cart.subtotal = totals.subtotal;
-      cart.tax = totals.tax;
-      cart.total = totals.total;
+      cart.subtotal = subtotal;
+      cart.tax = tax;
+      cart.total = total;
     }
     const { items, ...orderWithoutItems } = cart;
     return { order: orderWithoutItems, items };
@@ -165,3 +166,4 @@ export async function refreshCart(
   const { items, ...orderWithoutItems } = cart;
   return { order: orderWithoutItems, items };
 }
+

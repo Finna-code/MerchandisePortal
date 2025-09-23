@@ -157,6 +157,12 @@ export default function CartView({ initialCart }: CartViewProps) {
   );
 
   const clearCart = useCallback(async () => {
+    if (typeof window !== "undefined") {
+      const confirmed = window.confirm("Are you sure you want to delete everything off your cart?");
+      if (!confirmed) {
+        return;
+      }
+    }
     setClearing(true);
     try {
       const res = await fetch("/api/cart", {
