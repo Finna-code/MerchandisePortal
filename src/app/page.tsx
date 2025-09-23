@@ -22,10 +22,10 @@ export default async function Home() {
         {/* Subtle background gradient only */}
         <div className="absolute inset-0 z-0 bg-gradient-to-b from-indigo-100/60 to-white dark:from-gray-900 dark:to-gray-950" />
         <div className="relative z-10 text-center px-4 animate-fade-in-up max-w-2xl mx-auto">
-          <h1 className="text-4xl md:text-6xl font-bold tracking-tighter mb-4 text-gray-900 dark:text-white drop-shadow-lg animate-fade-in-up">
+          <h1 className="text-4xl md:text-6xl font-bold tracking-tighter mb-4 text-foreground drop-shadow-lg animate-fade-in-up">
             MerchPortal
           </h1>
-          <p className="text-lg md:text-xl text-gray-700 dark:text-gray-200 max-w-2xl mx-auto mb-8 drop-shadow animate-fade-in-up delay-100">
+          <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-8 drop-shadow animate-fade-in-up delay-100">
             Your one-stop shop for exclusive merchandise. High-quality products, fast shipping, and great prices.
           </p>
           <Button asChild size="lg" className="shadow-lg animate-fade-in-up delay-200">
@@ -77,14 +77,14 @@ export default async function Home() {
                       />
                     </CardHeader>
                     <CardContent className="flex flex-col flex-1 p-6">
-                      <CardTitle className="mb-2 text-lg font-semibold text-gray-900 dark:text-white">
+                      <CardTitle className="mb-2 text-lg font-semibold text-foreground">
                         {product.name}
                       </CardTitle>
-                      <p className="text-gray-600 dark:text-gray-400 mb-4 line-clamp-2">
+                      <p className="text-muted-foreground mb-4 line-clamp-2">
                         {product.description}
                       </p>
                       <div className="flex justify-between items-center mt-auto">
-                        <span className="text-xl font-bold text-blue-600 dark:text-blue-400">
+                        <span className="text-xl font-bold text-foreground">
                           ₹{product.price?.toString?.() ?? product.price}
                         </span>
                         <Button asChild size="sm" className="ml-2">
@@ -108,7 +108,7 @@ export default async function Home() {
       </section>
 
       {/* Footer */}
-  <footer className="w-full bg-gray-900 text-white py-8 animate-fade-in-up delay-300">
+      <footer className="w-full bg-background text-foreground border-t py-8 animate-fade-in-up delay-300">
         <div className="container mx-auto text-center">
           <p>&copy; 2025 MerchPortal. All rights reserved.</p>
         </div>

@@ -55,3 +55,31 @@ This document defines the lightweight UI/UX conventions used across the project 
 - Add toast notifications for common success actions.
 - Add navigation links (Products, Dashboard, Admin) to the header.
 - Add skeleton loaders for admin lists.
+
+## Theme (Universal Light/Dark)
+- Root toggle via `data-theme` on `<html>`.
+  - Values: `light` | `dark`. A `system` mode is supported via script and localStorage; it resolves to light/dark and keeps listening to system changes when user preference is unset.
+- Tokens: all colors reference CSS variables.
+  - `src/app/globals.css` defines tokens for both themes:
+    - Light: `html[data-theme="light"], :root { ...; color-scheme: light }`
+    - Dark: `html[data-theme="dark"], .dark { ...; color-scheme: dark }`
+  - Components must use token-based classes (e.g., `bg-primary text-primary-foreground`) or direct CSS variables. No hardcoded hex in components.
+- Pre-hydration theme setter to prevent FOUC.
+  - Inline script in `src/app/layout.tsx` sets `data-theme` before paint, reads `localStorage.theme` or `prefers-color-scheme`.
+  - Exposes `window.__setTheme('light'|'dark'|'system')` and dispatches a `themechange` event.
+  - Updates `<meta name="theme-color">` on change for browser chrome.
+- Toggle component `ThemeToggle` in header.
+  - File: `src/components/theme-toggle.tsx`
+  - Offers 3 options: Light, Dark, System; persists to localStorage (except System).
+- System changes.
+  - When preference is `system` (no localStorage override), the script listens to `matchMedia('(prefers-color-scheme: dark)')` and reapplies theme + meta.
+- Assets.
+  - Header logo swaps using CSS: `[data-theme="dark"] img.logo { content: url('/logos/logo-dark.svg') }`.
+  - Default light logo at `/public/logo.svg`, dark at `/public/logos/logo-dark.svg`.
+- Tailwind
+  - Tailwind v4 is used with inline theme and a custom `dark` variant mapped to `[data-theme="dark"]` in `globals.css`.
+- Accessibility
+  - Token values respect contrast ≥ 4.5:1 for text. Animations remain subtle and are not reduced in dark mode.
+- Testing
+  - SSR: No flash; verify `meta[name=theme-color]` updates.
+  - Toggle works with/without saved preference; System mode follows OS changes.
