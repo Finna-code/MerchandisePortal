@@ -124,10 +124,10 @@ export default function AdminUsersPage() {
                               <TooltipTrigger asChild>
                                 <button
                                   type="button"
-                                  className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-input bg-background text-foreground shadow-sm"
+                                  className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-input bg-background text-foreground shadow-sm group transition-all duration-150 hover:-translate-y-0.5 hover:shadow-md focus-visible:shadow-md"
                                   aria-label="Info: You’ll lock yourself out!"
                                 >
-                                  <Info className="h-4 w-4" />
+                                  <Info className="h-4 w-4 transition-transform duration-150 group-hover:rotate-6 group-hover:scale-110" />
                                 </button>
                               </TooltipTrigger>
                               <TooltipContent>

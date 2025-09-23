@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import Image from "next/image";
 import { auth } from "@/auth";
 
 export default async function Home() {
@@ -28,18 +29,12 @@ export default async function Home() {
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-8 drop-shadow animate-fade-in-up delay-100">
             Your one-stop shop for exclusive merchandise. High-quality products, fast shipping, and great prices.
           </p>
-          <Button asChild size="lg" className="shadow-lg animate-fade-in-up delay-200">
+          <Button asChild size="lg" className="shadow-lg animate-fade-in-up delay-200 group transition-all duration-150 hover:-translate-y-0.5 hover:shadow-xl focus-visible:shadow-xl">
             <Link
-              href={
-                !session
-                  ? "/products"
-                  : (session as any)?.user?.role === "admin"
-                  ? "/admin"
-                  : "/dashboard"
-              }
+              href={!session ? "/products" : session?.user?.role === "admin" ? "/admin" : "/dashboard"}
             >
-              { !session ? "Shop Now" : (session as any)?.user?.role === "admin" ? "Admin Dashboard" : "Dashboard" }
-              <ArrowRight className="ml-2 h-5 w-5" />
+              { !session ? "Shop Now" : session?.user?.role === "admin" ? "Admin Dashboard" : "Dashboard" }
+              <ArrowRight className="ml-2 h-5 w-5 transition-transform duration-150 group-hover:translate-x-0.5" />
             </Link>
           </Button>
         </div>
@@ -69,11 +64,14 @@ export default async function Home() {
                     style={{ animationDelay: `${100 + idx * 80}ms` }}
                   >
                     <CardHeader className="p-0">
-                      <img
+                      <Image
                         src={imageSrc}
                         alt={product.name}
+                        width={288}
+                        height={192}
                         className="w-full h-48 object-cover object-center rounded-t-lg group-hover:scale-105 transition-transform duration-300"
                         draggable={false}
+                        sizes="(max-width: 768px) 100vw, 33vw"
                       />
                     </CardHeader>
                     <CardContent className="flex flex-col flex-1 p-6">
@@ -87,7 +85,7 @@ export default async function Home() {
                         <span className="text-xl font-bold text-foreground">
                           ₹{product.price?.toString?.() ?? product.price}
                         </span>
-                        <Button asChild size="sm" className="ml-2">
+                        <Button asChild size="sm" className="ml-2 transition-all duration-150 hover:-translate-y-0.5 hover:shadow-sm focus-visible:shadow-sm">
                           <Link href={`/products/${product.id}`}>View Details</Link>
                         </Button>
                       </div>
@@ -98,7 +96,7 @@ export default async function Home() {
             </div>
           )}
           <div className="text-center mt-12">
-            <Button asChild variant="outline">
+            <Button asChild variant="outline" className="transition-all duration-150 hover:-translate-y-0.5 hover:shadow-sm focus-visible:shadow-sm">
               <Link href="/products">
                 View All Products
               </Link>

@@ -47,8 +47,13 @@ export default function DeleteImage({
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button type="button" variant="destructive" className="gap-2" disabled={busy}>
-          <Trash2 className="h-4 w-4" />
+        <Button
+          type="button"
+          variant="destructive"
+          className="gap-2 group transition-all duration-150 hover:-translate-y-0.5 hover:shadow-md focus-visible:shadow-md disabled:opacity-70"
+          disabled={busy}
+        >
+          <Trash2 className="h-4 w-4 transition-transform duration-150 group-hover:rotate-12 group-hover:scale-110" />
           {busy ? "Deleting..." : "Delete image"}
         </Button>
       </AlertDialogTrigger>

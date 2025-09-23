@@ -67,7 +67,7 @@ export default async function UserDashboard() {
                 Products
               </CardTitle>
               <Link href="/products">
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="sm" className="transition-all duration-150 hover:-translate-y-0.5 hover:shadow-sm focus-visible:shadow-sm">
                   View All
                 </Button>
               </Link>
@@ -87,7 +87,7 @@ export default async function UserDashboard() {
             </CardHeader>
             <CardContent>
               <Link href="/products">
-                <Button size="sm" className="w-full">
+                <Button size="sm" className="w-full transition-all duration-150 hover:-translate-y-0.5 hover:shadow-sm focus-visible:shadow-sm">
                   Create Order
                 </Button>
               </Link>

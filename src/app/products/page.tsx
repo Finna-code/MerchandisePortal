@@ -5,8 +5,16 @@ import Link from "next/link";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 
+type ProductLite = {
+  id: number;
+  name: string;
+  description: string;
+  price: number;
+  images: string[] | null;
+};
+
 export default function ProductsPage() {
-  const [products, setProducts] = useState<any[] | null>(null);
+  const [products, setProducts] = useState<ProductLite[] | null>(null);
   useEffect(() => {
     fetch("/api/products")
       .then((res) => res.json())
@@ -29,7 +37,7 @@ export default function ProductsPage() {
             ))
           : products.length === 0
           ? <div className="col-span-full text-center text-gray-500">No products available.</div>
-          : products.map((product) => {
+          : products.map((product: ProductLite) => {
               let imageSrc = "/logo.svg";
               if (Array.isArray(product.images) && typeof product.images[0] === "string") {
                 imageSrc = product.images[0];
@@ -46,7 +54,7 @@ export default function ProductsPage() {
                   <h2 className="text-xl font-semibold mb-2 text-center">{product.name}</h2>
                   <p className="text-muted-foreground text-sm mb-2 text-center line-clamp-2">{product.description}</p>
                   <div className="font-bold text-lg mb-2">₹{product.price?.toString?.() ?? product.price}</div>
-                  <Button asChild className="mt-auto">
+                  <Button asChild className="mt-auto transition-all duration-150 hover:-translate-y-0.5 hover:shadow-sm focus-visible:shadow-sm">
                     <Link href={`/products/${product.id}`}>View Details</Link>
                   </Button>
                 </div>

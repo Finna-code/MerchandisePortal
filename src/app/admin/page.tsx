@@ -50,7 +50,7 @@ export default function AdminPage() {
             </p>
           </CardContent>
           <div className="p-6 pt-0">
-            <Button asChild>
+            <Button asChild className="transition-all duration-150 hover:-translate-y-0.5 hover:shadow-sm focus-visible:shadow-sm">
               <Link href="/admin/products">Go to Products</Link>
             </Button>
           </div>
@@ -68,7 +68,7 @@ export default function AdminPage() {
             </p>
           </CardContent>
           <div className="p-6 pt-0">
-            <Button asChild>
+            <Button asChild className="transition-all duration-150 hover:-translate-y-0.5 hover:shadow-sm focus-visible:shadow-sm">
               <Link href="/admin/orders">Go to Orders</Link>
             </Button>
           </div>
@@ -86,7 +86,7 @@ export default function AdminPage() {
             </p>
           </CardContent>
           <div className="p-6 pt-0">
-            <Button asChild>
+            <Button asChild className="transition-all duration-150 hover:-translate-y-0.5 hover:shadow-sm focus-visible:shadow-sm">
               <Link href="/admin/users">Go to Users</Link>
             </Button>
           </div>

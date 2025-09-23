@@ -17,14 +17,14 @@ export function UserMenu() {
 
   if (!data)
     return (
-      <Button asChild size="sm" variant="outline">
+      <Button asChild size="sm" variant="outline" className="transition-all duration-150 hover:-translate-y-0.5 hover:shadow-sm focus-visible:shadow-sm">
         <Link href="/signin">Sign in</Link>
       </Button>
     );
   return (
     <div className="flex items-center gap-2">
       <span className="text-sm text-foreground/80">{data.user?.email}</span>
-      <Button size="sm" variant="outline" onClick={() => signOut({ callbackUrl: "/" })}>Sign out</Button>
+      <Button size="sm" variant="outline" onClick={() => signOut({ callbackUrl: "/" })} className="transition-all duration-150 hover:-translate-y-0.5 hover:shadow-sm focus-visible:shadow-sm">Sign out</Button>
     </div>
   );
 }

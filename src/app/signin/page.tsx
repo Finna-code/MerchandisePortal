@@ -131,10 +131,14 @@ export default function SignIn() {
                           type="button"
                           aria-label={showPassword ? "Hide password" : "Show password"}
                           onClick={() => setShowPassword((s) => !s)}
-                          className="absolute inset-y-0 right-2 my-auto p-1.5 rounded-md text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
+                          className="absolute inset-y-0 right-2 my-auto p-1.5 rounded-md text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors group"
                           tabIndex={-1}
                         >
-                          {showPassword ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+                          {showPassword ? (
+                            <Eye className="h-4 w-4 transition-transform duration-150 group-hover:rotate-6 group-hover:scale-110" />
+                          ) : (
+                            <EyeOff className="h-4 w-4 transition-transform duration-150 group-hover:-rotate-6 group-hover:scale-110" />
+                          )}
                         </button>
                       </div>
                     </FormControl>
@@ -142,7 +146,7 @@ export default function SignIn() {
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="w-full" disabled={isSubmitting}>
+              <Button type="submit" className="w-full transition-all duration-150 hover:-translate-y-0.5 hover:shadow-sm focus-visible:shadow-sm" disabled={isSubmitting}>
                 {isSubmitting ? "Signing In..." : "Sign In"}
               </Button>
             </form>

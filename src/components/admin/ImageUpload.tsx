@@ -49,7 +49,7 @@ export default function ImageUpload({ onUploaded }: { onUploaded: (url: string) 
       <Button
         type="button"
         variant="outline"
-        className="h-9 shrink-0"
+        className="h-9 shrink-0 transition-all duration-150 hover:-translate-y-0.5 hover:shadow-sm focus-visible:shadow-sm"
         disabled={busy}
         onClick={() => inputRef.current?.click()}
       >

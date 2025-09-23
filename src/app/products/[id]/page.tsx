@@ -12,7 +12,8 @@ export default async function ProductDetailsPage({ params }: { params: Promise<{
   const product = await prisma.product.findUnique({ where: { id } });
   if (!product || !product.active) return notFound();
 
-  const imageSrc = Array.isArray(product.images) && typeof (product.images as any)[0] === "string" ? (product.images as any)[0] : "/logo.svg";
+  const firstImage = Array.isArray(product.images) ? product.images[0] : undefined;
+  const imageSrc = typeof firstImage === "string" && firstImage.length > 0 ? firstImage : "/logo.svg";
 
   return (
     <main className="max-w-5xl mx-auto px-4 py-10">
@@ -23,12 +24,12 @@ export default async function ProductDetailsPage({ params }: { params: Promise<{
         <div>
           <h1 className="text-3xl font-bold mb-3">{product.name}</h1>
           <div className="text-muted-foreground mb-4">{product.description}</div>
-          <div className="text-2xl font-semibold mb-6">₹{product.price?.toString?.() ?? (product as any).price}</div>
+          <div className="text-2xl font-semibold mb-6">₹{product.price?.toString?.() ?? String(product.price)}</div>
           <div className="flex gap-3">
-            <Button asChild>
+            <Button asChild className="transition-all duration-150 hover:-translate-y-0.5 hover:shadow-sm focus-visible:shadow-sm">
               <Link href="/cart">Add to Cart</Link>
             </Button>
-            <Button asChild variant="outline">
+            <Button asChild variant="outline" className="transition-all duration-150 hover:-translate-y-0.5 hover:shadow-sm focus-visible:shadow-sm">
               <Link href="/products">Back to Products</Link>
             </Button>
           </div>

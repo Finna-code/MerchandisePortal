@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { CATEGORIES } from "@/constants/categories";
-import { Plus, Minus, Trash } from "lucide-react";
+import { Trash, Pencil, Save, X } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -174,20 +174,47 @@ function ProductRow({ p, onChanged }: { p: Product; onChanged: () => Promise<voi
       <TableCell className="text-right">
         {edit ? (
           <div className="flex justify-end gap-2">
-            <Button variant="default" size="sm" disabled={saving} onClick={save}>{saving ? "Saving..." : "Save"}</Button>
-            <Button variant="outline" size="sm" disabled={saving} onClick={() => setEdit(false)}>Cancel</Button>
+            <Button
+              variant="default"
+              size="sm"
+              disabled={saving}
+              onClick={save}
+              className="gap-1.5 group transition-all duration-150 hover:-translate-y-0.5 hover:shadow-sm focus-visible:shadow-sm"
+            >
+              <Save className="h-4 w-4 transition-transform duration-150 group-hover:rotate-3 group-hover:scale-110" />
+              {saving ? "Saving..." : "Save"}
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={saving}
+              onClick={() => setEdit(false)}
+              className="gap-1.5 group transition-all duration-150 hover:-translate-y-0.5 hover:shadow-sm focus-visible:shadow-sm"
+            >
+              <X className="h-4 w-4 transition-transform duration-150 group-hover:-rotate-3 group-hover:scale-110" />
+              Cancel
+            </Button>
           </div>
         ) : (
           <div className="flex justify-end gap-2">
-            <Button variant="outline" size="sm" onClick={() => setEdit(true)}>Edit</Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setEdit(true)}
+              className="gap-1.5 group transition-all duration-150 hover:-translate-y-0.5 hover:shadow-sm focus-visible:shadow-sm"
+            >
+              <Pencil className="h-4 w-4 transition-transform duration-150 group-hover:-rotate-3 group-hover:scale-110" />
+              Edit
+            </Button>
             <Button
               variant="destructive"
               size="sm"
               onClick={remove}
               aria-label={`Delete ${p.name}`}
               title={`Delete ${p.name}`}
+              className="gap-1.5 group transition-all duration-150 hover:-translate-y-0.5 hover:shadow-sm focus-visible:shadow-sm"
             >
-              <Trash className="h-4 w-4" />
+              <Trash className="h-4 w-4 transition-transform duration-150 group-hover:rotate-12 group-hover:scale-110" />
             </Button>
           </div>
         )}
@@ -278,23 +305,6 @@ export default function AdminProductsPage() {
     }
   }
 
-  async function toggleActive(p: Product) {
-    try {
-      setError(null);
-      const res = await fetch(`/api/admin/products/${p.id}`, {
-        method: p.active ? "DELETE" : "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: p.active ? undefined : JSON.stringify({ active: true }),
-      });
-      if (!res.ok) throw new Error((await res.json())?.error || "Failed to update");
-      await load();
-      toast({ variant: "invert", title: p.active ? "Product deactivated" : "Product activated" });
-    } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : "Failed to update product";
-      setError(msg);
-      toast({ variant: "destructive", title: "Update failed", description: String(msg) });
-    }
-  }
 
   return (
     <main className="max-w-7xl mx-auto px-4 py-8">
@@ -324,44 +334,59 @@ export default function AdminProductsPage() {
   ))}
 </Select>
             <Input placeholder="Description" value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} />
-            <div className="relative">
-              <Input
-                type="number"
-                step={1}
-                min={0}
-                inputMode="numeric"
-                value={priceFocused ? (form.price === "0" ? "" : form.price) : (!form.price || form.price === "0" ? "" : form.price)}
-                onFocus={() => setPriceFocused(true)}
-                onBlur={() => setPriceFocused(false)}
-                onChange={(e) => setForm((f) => ({ ...f, price: e.target.value }))}
-                className="bg-background dark:bg-input/30 pr-16"
-              />
-              {!priceFocused && (!form.price || form.price === "0") && (
-                <span
-                  className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
-                  aria-hidden
-                >
-                  Price
-                </span>
-              )}
-              <div className="absolute top-1/2 -translate-y-1/2 right-1 flex items-center gap-1">
-                <button
-                  type="button"
-                  aria-label="Decrease price"
-                  className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-input bg-background text-foreground shadow-sm"
-                  onClick={() => setForm((f) => ({ ...f, price: String(Math.max(0, (Number(f.price || 0) || 0) - 1)) }))}
-                >
-                  <Minus className="h-3.5 w-3.5" />
-                </button>
-                <button
-                  type="button"
-                  aria-label="Increase price"
-                  className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-input bg-background text-foreground shadow-sm"
-                  onClick={() => setForm((f) => ({ ...f, price: String(Math.max(0, (Number(f.price || 0) || 0) + 1)) }))}
-                >
-                  <Plus className="h-3.5 w-3.5" />
-                </button>
+            <div
+              className="flex h-10 w-full items-center justify-between rounded-md border border-input
+               bg-background text-foreground focus-within:ring-2 focus-within:ring-ring"
+            >
+              <button
+                type="button"
+                aria-label="Decrement price"
+                onClick={() => setForm((f) => ({ ...f, price: String(Math.max(0, (Number(f.price || 0) || 0) - 1)) }))}
+                disabled={Number(form.price) <= 0}
+                className="h-full px-3 flex items-center justify-center hover:bg-accent
+                 hover:text-accent-foreground disabled:opacity-40"
+              >
+                −
+              </button>
+
+              <div className="relative flex-1 h-full">
+                <input
+                  type="number"
+                  inputMode="numeric"
+                  min={0}
+                  step={1}
+                  value={priceFocused ? (form.price === "0" ? "" : form.price) : (!form.price || form.price === "0" ? "" : form.price)}
+                  onFocus={() => setPriceFocused(true)}
+                  onBlur={() => setPriceFocused(false)}
+                  onChange={(e) => setForm((f) => ({ ...f, price: e.target.value }))}
+                  onKeyDown={(e) => {
+                    if (e.key === "ArrowUp") { e.preventDefault(); setForm((f) => ({ ...f, price: String(Math.max(0, (Number(f.price || 0) || 0) + 1)) })); }
+                    if (e.key === "ArrowDown") { e.preventDefault(); setForm((f) => ({ ...f, price: String(Math.max(0, (Number(f.price || 0) || 0) - 1)) })); }
+                  }}
+                  className="w-full h-full bg-transparent text-center outline-none
+                 [appearance:textfield]
+                 [::-webkit-outer-spin-button]:appearance-none
+                 [::-webkit-inner-spin-button]:appearance-none"
+                />
+                {!priceFocused && (!form.price || form.price === "0") && (
+                  <span
+                    className="pointer-events-none absolute inset-0 flex items-center justify-center text-muted-foreground"
+                    aria-hidden
+                  >
+                    Price
+                  </span>
+                )}
               </div>
+
+              <button
+                type="button"
+                aria-label="Increment price"
+                onClick={() => setForm((f) => ({ ...f, price: String(Math.max(0, (Number(f.price || 0) || 0) + 1)) }))}
+                className="h-full px-3 flex items-center justify-center hover:bg-accent
+                 hover:text-accent-foreground"
+              >
+                +
+              </button>
             </div>
             <Input placeholder="Currency" value={form.currency} onChange={(e) => setForm((f) => ({ ...f, currency: e.target.value }))} />
             <div>
@@ -393,46 +418,61 @@ export default function AdminProductsPage() {
                 </div>
               ) : null}
             </div>
-            <div className="relative">
-              <Input
-                type="number"
-                step={1}
-                min={0}
-                inputMode="numeric"
-                value={stockFocused ? (form.stock === "0" ? "" : form.stock) : (!form.stock || form.stock === "0" ? "" : form.stock)}
-                onFocus={() => setStockFocused(true)}
-                onBlur={() => setStockFocused(false)}
-                onChange={(e) => setForm((f) => ({ ...f, stock: e.target.value }))}
-                className="bg-background dark:bg-input/30 pr-16"
-              />
-              {!stockFocused && (!form.stock || form.stock === "0") && (
-                <span
-                  className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
-                  aria-hidden
-                >
-                  Stock
-                </span>
-              )}
-              <div className="absolute top-1/2 -translate-y-1/2 right-1 flex items-center gap-1">
-                <button
-                  type="button"
-                  aria-label="Decrease stock"
-                  className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-input bg-background text-foreground shadow-sm"
-                  onClick={() => setForm((f) => ({ ...f, stock: String(Math.max(0, (Number(f.stock || 0) || 0) - 1)) }))}
-                >
-                  <Minus className="h-3.5 w-3.5" />
-                </button>
-                <button
-                  type="button"
-                  aria-label="Increase stock"
-                  className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-input bg-background text-foreground shadow-sm"
-                  onClick={() => setForm((f) => ({ ...f, stock: String(Math.max(0, (Number(f.stock || 0) || 0) + 1)) }))}
-                >
-                  <Plus className="h-3.5 w-3.5" />
-                </button>
+            <div
+              className="flex h-10 w-full items-center justify-between rounded-md border border-input
+               bg-background text-foreground focus-within:ring-2 focus-within:ring-ring"
+            >
+              <button
+                type="button"
+                aria-label="Decrement stock"
+                onClick={() => setForm((f) => ({ ...f, stock: String(Math.max(0, (Number(f.stock || 0) || 0) - 1)) }))}
+                disabled={Number(form.stock) <= 0}
+                className="h-full px-3 flex items-center justify-center hover:bg-accent
+                 hover:text-accent-foreground disabled:opacity-40"
+              >
+                −
+              </button>
+
+              <div className="relative flex-1 h-full">
+                <input
+                  type="number"
+                  inputMode="numeric"
+                  min={0}
+                  step={1}
+                  value={stockFocused ? (form.stock === "0" ? "" : form.stock) : (!form.stock || form.stock === "0" ? "" : form.stock)}
+                  onFocus={() => setStockFocused(true)}
+                  onBlur={() => setStockFocused(false)}
+                  onChange={(e) => setForm((f) => ({ ...f, stock: e.target.value }))}
+                  onKeyDown={(e) => {
+                    if (e.key === "ArrowUp") { e.preventDefault(); setForm((f) => ({ ...f, stock: String(Math.max(0, (Number(f.stock || 0) || 0) + 1)) })); }
+                    if (e.key === "ArrowDown") { e.preventDefault(); setForm((f) => ({ ...f, stock: String(Math.max(0, (Number(f.stock || 0) || 0) - 1)) })); }
+                  }}
+                  className="w-full h-full bg-transparent text-center outline-none
+                 [appearance:textfield]
+                 [::-webkit-outer-spin-button]:appearance-none
+                 [::-webkit-inner-spin-button]:appearance-none"
+                />
+                {!stockFocused && (!form.stock || form.stock === "0") && (
+                  <span
+                    className="pointer-events-none absolute inset-0 flex items-center justify-center text-muted-foreground"
+                    aria-hidden
+                  >
+                    Stock
+                  </span>
+                )}
               </div>
+
+              <button
+                type="button"
+                aria-label="Increment stock"
+                onClick={() => setForm((f) => ({ ...f, stock: String(Math.max(0, (Number(f.stock || 0) || 0) + 1)) }))}
+                className="h-full px-3 flex items-center justify-center hover:bg-accent
+                 hover:text-accent-foreground"
+              >
+                +
+              </button>
             </div>
-            <div className="flex items-center"><Button onClick={createProduct} disabled={disableCreate}>Create</Button></div>
+            <Button onClick={createProduct} disabled={disableCreate} className="h-10 w-full md:w-auto">Create</Button>
           </div>
         </CardContent>
       </Card>

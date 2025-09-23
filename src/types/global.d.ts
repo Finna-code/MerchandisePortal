@@ -6,6 +6,7 @@ export {};
 
 declare global {
   interface Window {
+    __setTheme(theme: 'light' | 'dark'): void;
     __navTimer?: ReturnType<typeof setTimeout>;
     __navHideFallback?: ReturnType<typeof setTimeout>;
   }
