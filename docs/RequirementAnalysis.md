@@ -37,7 +37,7 @@ The Merchandise Portal is a web-based platform designed to streamline the manage
 - Moderation of reviews (visibility control)
 
 ### 4.5 Payment Processing
-- Integration with payment gateways (e.g., Razorpay)
+- Integration with a third-party payment gateway (provider to be finalized)
 - Payment status tracking
 
 ### 4.6 Reminders & Notifications
@@ -69,7 +69,7 @@ The Merchandise Portal is a web-based platform designed to streamline the manage
 - Frontend: Next.js (React), modern UI libraries
 - Backend: Node.js, Prisma ORM
 - Database: Relational (e.g., PostgreSQL/MySQL)
-- Payment: Razorpay integration
+- Payment: External payment gateway integration
 
 ## 7. User Experience (UX) Goals
 - Visually appealing and accessible interface

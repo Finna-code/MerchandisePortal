@@ -1,43 +1,100 @@
-import { NextResponse } from "next/server";
-import { prisma } from "@/lib/db";
+import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
+
 import { requireAdmin } from "@/lib/guard";
-import { z, ZodError } from "zod";
+import { markOrderDelivered, markOrderReady, cancelPendingOrderAsAdmin } from "@/lib/order-actions";
+import { OrderNotFoundError, OrderStateError, getOrderWithRelations, serializeOrder } from "@/lib/orders";
 
-const bodySchema = z.object({ status: z.enum(["cart","pending","paid","canceled"]) });
+const bodySchema = z.object({
+  action: z.enum(["mark_ready", "mark_delivered", "cancel"]),
+});
 
-export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
+async function readParams(paramsPromise: Promise<{ id: string }>) {
+  const { id } = await paramsPromise;
+  const orderId = Number(id);
+  if (!Number.isFinite(orderId)) {
+    throw new OrderStateError("Invalid order id");
+  }
+  return orderId;
+}
+
+export async function GET(_: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await requireAdmin();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const { id: idParam } = await params;
-  const id = Number(idParam);
-  if (!Number.isFinite(id)) return NextResponse.json({ error: "Invalid id" }, { status: 400 });
-
   try {
-    const json = await req.json();
-    const { status } = bodySchema.parse(json);
-
-    const existing = await prisma.order.findUnique({ where: { id }, select: { userId: true } });
-    if (!existing) {
-      return NextResponse.json({ error: "Order not found" }, { status: 404 });
+    const orderId = await readParams(params);
+    const order = await getOrderWithRelations(orderId);
+    return NextResponse.json(serializeOrder(order));
+  } catch (error) {
+    if (error instanceof OrderNotFoundError) {
+      return NextResponse.json({ error: error.message }, { status: 404 });
     }
 
-    const updated = await prisma.order.update({
-      where: { id },
-      data: {
-        status,
-        cartUserId: status === "cart" ? existing.userId : null,
-      },
-    });
-    return NextResponse.json(updated);
-  } catch (e: unknown) {
-    const message = e instanceof ZodError
-      ? e.issues?.[0]?.message ?? "Invalid request"
-      : e instanceof Error
-        ? e.message
-        : "Invalid request";
-    return NextResponse.json({ error: message }, { status: 400 });
+    if (error instanceof OrderStateError) {
+      return NextResponse.json({ error: error.message }, { status: 400 });
+    }
+
+    console.error("admin/orders/[id] GET", error);
+    return NextResponse.json({ error: "Failed to load order" }, { status: 500 });
   }
 }
 
+export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const session = await requireAdmin();
+  if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
+  let parsed: z.infer<typeof bodySchema>;
+  try {
+    const json = await req.json();
+    parsed = bodySchema.parse(json);
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      const issue = error.issues.at(0);
+      return NextResponse.json({ error: issue?.message ?? "Invalid request" }, { status: 422 });
+    }
+    return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
+  }
+
+  let orderId: number;
+  try {
+    orderId = await readParams(params);
+  } catch (error) {
+    if (error instanceof OrderStateError) {
+      return NextResponse.json({ error: error.message }, { status: 400 });
+    }
+    throw error;
+  }
+
+  try {
+    switch (parsed.action) {
+      case "mark_ready": {
+        const order = await markOrderReady(orderId, Number(session.user.id));
+        return NextResponse.json(order);
+      }
+      case "mark_delivered": {
+        const order = await markOrderDelivered(orderId, Number(session.user.id));
+        return NextResponse.json(order);
+      }
+      case "cancel": {
+        const order = await cancelPendingOrderAsAdmin(orderId, Number(session.user.id));
+        return NextResponse.json(order);
+      }
+      default:
+        return NextResponse.json({ error: "Unsupported action" }, { status: 400 });
+    }
+  } catch (error) {
+    if (error instanceof OrderNotFoundError) {
+      return NextResponse.json({ error: error.message }, { status: 404 });
+    }
+
+    if (error instanceof OrderStateError) {
+      return NextResponse.json({ error: error.message }, { status: 400 });
+    }
+
+    console.error("admin/orders/[id] POST", error);
+    return NextResponse.json({ error: "Failed to update order" }, { status: 500 });
+  }
+}
+
+export const PUT = POST;

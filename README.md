@@ -5,28 +5,32 @@
 This project is a full-stack application for managing and selling merchandise, built with Next.js, Prisma, and PostgreSQL.
 
 ```
-Capstone Project/
-├── docs/                  # All documentation deliverables
-│   ├── SRS.md             # Software Requirements Spec
-│   ├── ERD.png            # Entity-Relationship Diagram
-│   ├── Wireframes/        # UI mockups (images or Figma exports)
-│   └── Report.md          # Final report or user manual
-│
-├── prisma/                # Database schema and migrations
-│   └── schema.prisma
-│
-├── src/                   # Next.js application code
-│   ├── app/               # Pages and routes (App Router)
-│   ├── components/        # Reusable UI components
-│   ├── lib/               # Utility modules (db.ts, auth.ts, etc.)
-│   └── styles/            # Global CSS (if any)
-│
-├── public/                # Static files (images, icons, logos)
-│
-├── .env.example           # Example environment variables
-├── package.json
-├── README.md              # Project overview + setup
-└── LICENSE
+capstone_project/
+|-- docs/
+|   |-- Capstone.pdf
+|   |-- Design.md
+|   |-- ERD.md
+|   |-- ERD.png
+|   |-- RequirementAnalysis.md
+|   |-- Report.md
+|   `-- Wireframes/
+|       |-- Checkout.md
+|       |-- Catalog.md
+|       |-- Landing.md
+|       |-- ProductDetail.md
+|       `-- README.md
+|-- prisma/
+|   `-- schema.prisma
+|-- src/
+|   |-- app/
+|   |-- components/
+|   |-- lib/
+|   `-- styles/
+|-- public/
+|-- .env.example
+|-- package.json
+|-- README.md
+`-- LICENSE
 ```
 
 ## Features
@@ -34,7 +38,7 @@ Capstone Project/
 *   **User Management:** User registration, login, and role-based access control (user, department head, admin).
 *   **Product Catalog:** Manage products, including details like name, description, price, images, and stock.
 *   **Ordering System:** Users can place individual or group orders. The system tracks order status from draft to delivery.
-*   **Payments:** Integration with Razorpay for processing payments.
+*   **Payments:** Hooks for integrating an external payment gateway (provider selection pending).
 *   **Reviews and Ratings:** Users can leave reviews and ratings for products.
 *   **Departmental Orders:** Support for orders associated with specific departments.
 *   **Reminders:** Automated reminders for order deadlines and pickups.
@@ -46,6 +50,16 @@ Capstone Project/
 *   [Node.js](https://nodejs.org/en/) (v20 or later)
 *   [npm](https://www.npmjs.com/)
 *   [PostgreSQL](https://www.postgresql.org/)
+
+### Environment Variables
+
+The application expects the following configuration values. Create `.env` based on `.env.example` or supply them through your hosting provider:
+
+- `DATABASE_URL`: PostgreSQL connection string.
+- `NEXTAUTH_SECRET`: Random string used by NextAuth for session encryption.
+- `NEXTAUTH_URL`: Public URL for the app (e.g., `http://localhost:3000` in development).
+- `PAYMENT_PROVIDER_API_KEY` / `PAYMENT_PROVIDER_API_SECRET`: Credentials for the payment gateway you configure.
+- `BLOB_READ_WRITE_TOKEN`: Token for product image uploads (e.g., Vercel Blob).
 
 ### Installation
 
@@ -88,4 +102,4 @@ Capstone Project/
     npm run dev
     ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000 with your browser to see the result.

@@ -1,4 +1,4 @@
-// This is your Prisma schema file,
+﻿// This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
@@ -29,7 +29,14 @@ enum OrderStatus {
   cart
   pending
   paid
+  ready
+  delivered
   canceled
+}
+
+enum FulfillmentType {
+  delivery
+  pickup
 }
 
 enum ReviewVisibility {
@@ -55,6 +62,7 @@ model User {
   orders       Order[]
   reviews      Review[]
   createdAt    DateTime @default(now())
+  events       OrderEvent[]
 }
 
 model Product {
@@ -75,26 +83,41 @@ model Product {
 }
 
 model Order {
-  id          Int         @id @default(autoincrement())
-  type        OrderType   @default(individual)
-  status      OrderStatus @default(cart)
-  userId      Int
-  user        User        @relation(fields: [userId], references: [id])
-  deptId      Int?
-  dept        Dept?       @relation(fields: [deptId], references: [id])
-  subtotal    Int         @default(0)
-  tax         Int         @default(0)
-  total       Int         @default(0)
-  pickupPoint String?
-  windowStart DateTime?
-  windowEnd   DateTime?
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  currency    String      @default("INR")
-  cartUserId  Int?        @unique
-  items       OrderItem[]
-  payment     Payment?
-  reminders   Reminder[]
+  id               Int               @id @default(autoincrement())
+  type             OrderType         @default(individual)
+  status           OrderStatus       @default(cart)
+  userId           Int
+  user             User              @relation(fields: [userId], references: [id])
+  deptId           Int?
+  dept             Dept?             @relation(fields: [deptId], references: [id])
+  subtotal         Int               @default(0)
+  tax              Int               @default(0)
+  total            Int               @default(0)
+  currency         String            @default("INR")
+  fulfillmentType  FulfillmentType?
+  shippingLine1    String?
+  shippingLine2    String?
+  shippingCity     String?
+  shippingState    String?
+  shippingPincode  String?
+  shippingPhone    String?
+  pickupPoint      String?
+  pickupSlotStart  DateTime?
+  pickupSlotEnd    DateTime?
+  windowStart      DateTime?
+  windowEnd        DateTime?
+  invoiceNo        String?           @unique
+  paidAt           DateTime?
+  readyAt          DateTime?
+  deliveredAt      DateTime?
+  cartUserId       Int?              @unique
+  version          Int               @default(0)
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  items            OrderItem[]
+  payment          Payment?
+  reminders        Reminder[]
+  events           OrderEvent[]
 }
 
 model OrderItem {
@@ -130,8 +153,11 @@ model Payment {
   order           Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
   razorpayOrderId String   @unique
   razorpayPayId   String?
-  status          String // e.g. created|paid|failed
+  amount          Int
+  currency        String   @default("INR")
+  status          String
   createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }
 
 model Reminder {
@@ -142,3 +168,15 @@ model Reminder {
   scheduledAt DateTime
   sentAt      DateTime?
 }
+
+model OrderEvent {
+  id        Int      @id @default(autoincrement())
+  orderId   Int
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  type      String
+  at        DateTime @default(now())
+  byUserId  Int?
+  byUser    User?    @relation(fields: [byUserId], references: [id])
+  meta      Json?
+}
+

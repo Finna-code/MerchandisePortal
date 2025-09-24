@@ -47,7 +47,7 @@ The software will be a web-based application that allows users to browse product
 | **Order**      | A transaction initiated by a user to purchase one or more products.     |
 | **Prisma**     | The Object-Relational Mapper (ORM) used for database access.            |
 | **Next.js**    | The React framework used for building the application.                  |
-| **Razorpay**   | The payment gateway integrated for processing online payments.          |
+| **Payment Gateway** | The external service integrated for processing online payments.             |
 | **UI**         | User Interface.                                                         |
 
 ### 1.4. References
@@ -74,7 +74,7 @@ The major functions of the system include:
 - **User Authentication**: Secure user registration, login, and session management.
 - **Product Catalog Management**: Admins can perform CRUD (Create, Read, Update, Delete) operations on products. Users can browse and search for products.
 - **Order Processing**: Users can create and manage orders. The system will track order status from creation to delivery.
-- **Payment Integration**: Secure payment processing through the Razorpay API.
+- **Payment Integration**: Secure payment processing through a third-party payment gateway API.
 - **Review System**: Users can submit reviews for products they have purchased.
 - **Administrative Dashboard**: A dedicated interface for admins to manage users, products, orders, and departments.
 
@@ -95,7 +95,7 @@ The system will have three primary user roles:
 ### 2.5. Assumptions and Dependencies
 
 - A running PostgreSQL database instance is required.
-- Access to a Razorpay merchant account is necessary for payment processing.
+- Access to a merchant account with the selected payment provider is necessary for payment processing.
 - The application will be deployed to a hosting environment that supports Node.js.
 
 ---
@@ -126,9 +126,9 @@ This functionality is supported by the `Order` and `OrderItem` models, linking u
 - **FR-3.5**: Admins shall be able to view and update the status of any order (`draft`, `pending`, `paid`, `shipped`, `delivered`, `canceled`).
 
 #### FR-4: Payment
-Payment details are stored in the `Payment` model, which has a one-to-one relationship with an `Order` and includes Razorpay-specific IDs.
-- **FR-4.1**: The system shall integrate with Razorpay to process payments for orders.
-- **FR-4.2**: The system shall record payment details, including the Razorpay Order ID.
+Payment details are stored in the `Payment` model, which has a one-to-one relationship with an `Order` and includes provider-specific identifiers.
+- **FR-4.1**: The system shall integrate with a third-party payment gateway to process payments for orders.
+- **FR-4.2**: The system shall record payment details, including the payment gateway order/reference ID.
 
 #### FR-5: Reviews
 Product reviews are handled by the `Review` model, which links a `User` and a `Product` with a rating and text body.
@@ -150,4 +150,4 @@ Product reviews are handled by the `Review` model, which links a `User` and a `P
 
 #### 3.3.2. Software Interfaces
 - **Database**: The application will interface with a PostgreSQL database via the Prisma client.
-- **Payment Gateway**: The application will interface with the Razorpay REST API for payment processing.
+- **Payment Gateway**: The application will interface with the selected payment gateway's REST API for payment processing.

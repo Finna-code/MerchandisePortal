@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -41,6 +42,7 @@ const fallbackImage = (
 
 export default function CartView({ initialCart }: CartViewProps) {
   const { toast } = useToast();
+  const router = useRouter();
   const { cart: sharedCart, setCartSnapshot, applyCartResponse } = useCartState();
   const [cart, setCart] = useState<SerializedCart>(initialCart);
   const [updatingItemId, setUpdatingItemId] = useState<number | null>(null);
@@ -186,7 +188,6 @@ export default function CartView({ initialCart }: CartViewProps) {
   }, [processResponse]);
 
   const busy = checkingOut || clearing || updatingItemId !== null || removingItemId !== null;
-  // TEMP: stub checkout flow; replace when real payment integration is ready.
   const handleCheckout = useCallback(async () => {
     if (busy || cart.items.length === 0) {
       if (cart.items.length === 0) {
@@ -198,13 +199,15 @@ export default function CartView({ initialCart }: CartViewProps) {
       }
       return;
     }
+
     setCheckingOut(true);
     try {
-      const res = await fetch("/api/cart/checkout", {
+      const res = await fetch("/api/checkout/start", {
         method: "POST",
         cache: "no-store",
         credentials: "include",
       });
+
       let payload: unknown = null;
       try {
         payload = await res.json();
@@ -213,11 +216,10 @@ export default function CartView({ initialCart }: CartViewProps) {
       }
 
       if (!res.ok) {
-        const fallback = applyCartResponse(payload, res.headers, res.status);
-        if (fallback) {
-          setCart(fallback);
-        }
-        const message = parseCartError(payload) ?? "We couldn't place your order.";
+        const message =
+          payload && typeof payload === "object" && payload && "error" in payload && typeof (payload as Record<string, unknown>).error === "string"
+            ? (payload as Record<string, unknown>).error
+            : "We couldn't start checkout.";
         toast({
           variant: "destructive",
           title: "Checkout failed",
@@ -226,31 +228,32 @@ export default function CartView({ initialCart }: CartViewProps) {
         return;
       }
 
-      const snapshot = applyCartResponse(payload, res.headers, res.status);
-      if (snapshot) {
-        setCart(snapshot);
+      const data = (payload ?? {}) as Record<string, unknown>;
+      const cartPayload = data.cart as SerializedCart | undefined;
+      if (cartPayload) {
+        setCart(cartPayload);
+        setCartSnapshot(cartPayload);
       }
+      const orderPayload = data.order as Record<string, unknown> | undefined;
+      const orderId = orderPayload && typeof orderPayload.id === "number" ? orderPayload.id : undefined;
+      const total = orderPayload && typeof orderPayload.total === "number" ? orderPayload.total : undefined;
+      const currency = orderPayload && typeof orderPayload.currency === "string" ? orderPayload.currency : undefined;
+      const summary = total !== undefined && currency ? `Total: ${formatMoney(total, currency)}` : "Review your order details to proceed.";
 
-      let orderId: number | undefined;
-      let orderTotal: number | undefined;
-      let currency: string | undefined;
-      if (payload && typeof payload === "object") {
-        const data = payload as Record<string, unknown>;
-        if (typeof data.orderId === "number") orderId = data.orderId;
-        if (typeof data.orderTotal === "number") orderTotal = data.orderTotal;
-        if (typeof data.currency === "string") currency = data.currency;
+      if (orderId) {
+        toast({
+          variant: "success",
+          title: `Order #${orderId} pending`,
+          description: summary,
+        });
+        router.push(`/checkout/${orderId}`);
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Checkout error",
+          description: "Order response was incomplete. Please try again.",
+        });
       }
-
-      const totalSummary =
-        orderTotal !== undefined && currency
-          ? `Total: ${formatMoney(orderTotal, currency)}`
-          : "Checkout stub marked your order as pending.";
-
-      toast({
-        variant: "success",
-        title: orderId ? `Order #${orderId} placed` : "Order placed",
-        description: totalSummary,
-      });
     } catch (error) {
       toast({
         variant: "destructive",
@@ -260,7 +263,7 @@ export default function CartView({ initialCart }: CartViewProps) {
     } finally {
       setCheckingOut(false);
     }
-  }, [applyCartResponse, busy, cart.items.length, setCart, toast]);
+  }, [busy, cart.items.length, router, setCart, setCartSnapshot, toast]);
 
   const itemCountLabel = useMemo(() => {
     const count = cart.itemCount ?? cart.items.length;
@@ -426,7 +429,7 @@ export default function CartView({ initialCart }: CartViewProps) {
                     Processing...
                   </span>
                 ) : (
-                  "Checkout (test stub)"
+                  "Proceed to checkout"
                 )}
               </Button>
               <p className="mt-2 text-center text-xs text-muted-foreground">
@@ -479,3 +482,12 @@ export default function CartView({ initialCart }: CartViewProps) {
     </div>
   );
 }
+
+
+
+
+
+
+
+
+

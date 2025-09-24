@@ -12,14 +12,7 @@ export async function POST() {
 
   try {
     const result = await createPendingOrder(Number(session.user.id));
-    return NextResponse.json({
-      orderId: result.order.id,
-      orderStatus: result.order.status,
-      orderTotal: result.order.total,
-      currency: result.order.currency,
-      cart: result.cart,
-      order: result.order,
-    });
+    return NextResponse.json(result);
   } catch (error) {
     if (error instanceof StockConflictError) {
       return NextResponse.json(
@@ -32,7 +25,7 @@ export async function POST() {
       return NextResponse.json({ error: error.message }, { status: 400 });
     }
 
-    console.error("cart/checkout", error);
+    console.error("checkout/start", error);
     return NextResponse.json({ error: "Failed to start checkout" }, { status: 500 });
   }
 }
