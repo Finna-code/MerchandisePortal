@@ -1,5 +1,6 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/db";
+import { OrderStatus } from "@prisma/client";
 import { formatMoney } from "@/lib/money";
 import {
   Card,
@@ -31,9 +32,8 @@ export default async function UserDashboard() {
     // Fetch orders and product count in parallel for faster TTFB
     const [orders, productsCount] = await Promise.all([
       prisma.order.findMany({
-        where: { userId: Number(userId) },
+        where: { userId: Number(userId), status: { not: OrderStatus.cart } },
         orderBy: { createdAt: "desc" },
-        take: 5,
         include: {
           items: { include: { product: true } },
         },
@@ -100,12 +100,12 @@ export default async function UserDashboard() {
           <CardHeader>
             <CardTitle>Recent Orders</CardTitle>
             <CardDescription>
-              Here are your 5 most recent orders.
+              Here are all orders you have placed.
             </CardDescription>
           </CardHeader>
           <CardContent>
             {orders.length === 0 ? (
-              <div className="text-muted-foreground">You have no recent orders.</div>
+              <div className="text-muted-foreground">You have not placed any orders yet.</div>
             ) : (
               <Table>
                 <TableHeader>

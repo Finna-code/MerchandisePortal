@@ -5,6 +5,17 @@ import Image from "next/image";
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { useToast } from "@/components/ui/toast";
 import { Loader2, Minus, Plus, Trash2 } from "lucide-react";
 import {
@@ -35,6 +46,7 @@ export default function CartView({ initialCart }: CartViewProps) {
   const [updatingItemId, setUpdatingItemId] = useState<number | null>(null);
   const [removingItemId, setRemovingItemId] = useState<number | null>(null);
   const [clearing, setClearing] = useState(false);
+  const [checkingOut, setCheckingOut] = useState(false);
 
   useEffect(() => {
     setCart(initialCart);
@@ -157,12 +169,6 @@ export default function CartView({ initialCart }: CartViewProps) {
   );
 
   const clearCart = useCallback(async () => {
-    if (typeof window !== "undefined") {
-      const confirmed = window.confirm("Are you sure you want to delete everything off your cart?");
-      if (!confirmed) {
-        return;
-      }
-    }
     setClearing(true);
     try {
       const res = await fetch("/api/cart", {
@@ -179,7 +185,82 @@ export default function CartView({ initialCart }: CartViewProps) {
     }
   }, [processResponse]);
 
-  const busy = clearing || updatingItemId !== null || removingItemId !== null;
+  const busy = checkingOut || clearing || updatingItemId !== null || removingItemId !== null;
+  // TEMP: stub checkout flow; replace when real payment integration is ready.
+  const handleCheckout = useCallback(async () => {
+    if (busy || cart.items.length === 0) {
+      if (cart.items.length === 0) {
+        toast({
+          variant: "invert",
+          title: "Cart is empty",
+          description: "Add items before checking out.",
+        });
+      }
+      return;
+    }
+    setCheckingOut(true);
+    try {
+      const res = await fetch("/api/cart/checkout", {
+        method: "POST",
+        cache: "no-store",
+        credentials: "include",
+      });
+      let payload: unknown = null;
+      try {
+        payload = await res.json();
+      } catch {
+        payload = null;
+      }
+
+      if (!res.ok) {
+        const fallback = applyCartResponse(payload, res.headers, res.status);
+        if (fallback) {
+          setCart(fallback);
+        }
+        const message = parseCartError(payload) ?? "We couldn't place your order.";
+        toast({
+          variant: "destructive",
+          title: "Checkout failed",
+          description: message,
+        });
+        return;
+      }
+
+      const snapshot = applyCartResponse(payload, res.headers, res.status);
+      if (snapshot) {
+        setCart(snapshot);
+      }
+
+      let orderId: number | undefined;
+      let orderTotal: number | undefined;
+      let currency: string | undefined;
+      if (payload && typeof payload === "object") {
+        const data = payload as Record<string, unknown>;
+        if (typeof data.orderId === "number") orderId = data.orderId;
+        if (typeof data.orderTotal === "number") orderTotal = data.orderTotal;
+        if (typeof data.currency === "string") currency = data.currency;
+      }
+
+      const totalSummary =
+        orderTotal !== undefined && currency
+          ? `Total: ${formatMoney(orderTotal, currency)}`
+          : "Checkout stub marked your order as pending.";
+
+      toast({
+        variant: "success",
+        title: orderId ? `Order #${orderId} placed` : "Order placed",
+        description: totalSummary,
+      });
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Checkout failed",
+        description: error instanceof Error ? error.message : "Unexpected error during checkout.",
+      });
+    } finally {
+      setCheckingOut(false);
+    }
+  }, [applyCartResponse, busy, cart.items.length, setCart, toast]);
 
   const itemCountLabel = useMemo(() => {
     const count = cart.itemCount ?? cart.items.length;
@@ -332,8 +413,21 @@ export default function CartView({ initialCart }: CartViewProps) {
                   <dd>{formatCartMoney(cart.total)}</dd>
                 </div>
               </dl>
-              <Button className="mt-6 w-full" size="lg" disabled>
-                Checkout coming soon
+              {/* TEMP: enable checkout button for testing; remove once checkout is implemented. */}
+              <Button
+                className="mt-6 w-full"
+                size="lg"
+                onClick={handleCheckout}
+                disabled={cart.items.length === 0 || busy}
+              >
+                {checkingOut ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <Loader2 className="size-4 animate-spin" aria-hidden />
+                    Processing...
+                  </span>
+                ) : (
+                  "Checkout (test stub)"
+                )}
               </Button>
               <p className="mt-2 text-center text-xs text-muted-foreground">
                 We&apos;re putting the finishing touches on checkout.
@@ -346,18 +440,35 @@ export default function CartView({ initialCart }: CartViewProps) {
               <CardTitle>Quick actions</CardTitle>
             </CardHeader>
             <CardContent className="flex flex-col gap-3 pt-0">
-              <Button
-                variant="outline"
-                onClick={clearCart}
-                disabled={
-                  cart.items.length === 0 ||
-                  clearing ||
-                  updatingItemId !== null ||
-                  removingItemId !== null
-                }
-              >
-                {clearing ? <Loader2 className="size-4 animate-spin" aria-hidden /> : "Empty cart"}
-              </Button>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    variant="outline"
+                    disabled={
+                      cart.items.length === 0 ||
+                      clearing ||
+                      updatingItemId !== null ||
+                      removingItemId !== null
+                    }
+                  >
+                    {clearing ? <Loader2 className="size-4 animate-spin" aria-hidden /> : "Empty cart"}
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Empty cart?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Are you sure you want to delete everything off your cart?
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={clearCart} disabled={busy}>
+                      Empty cart
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
               <Button asChild variant="ghost">
                 <Link href="/products">Keep shopping</Link>
               </Button>

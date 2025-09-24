@@ -10,7 +10,7 @@ import { useToast } from "@/components/ui/toast";
 import { Select, SelectItem } from "@/components/ui/select";
 import { formatMoney } from "@/lib/money";
 
-const ORDER_STATUSES = ["cart","pending","paid","canceled"] as const;
+const ORDER_STATUSES = ["pending","paid","canceled"] as const;
 
 type Order = {
   id: number;
@@ -114,7 +114,13 @@ export default function AdminOrdersPage() {
                 {orders.map((o) => (
                   <TableRow key={o.id}>
                     <TableCell>#{o.id}</TableCell>
-                    <TableCell>{o.user?.name ?? o.user?.email}</TableCell>
+                    <TableCell>
+                      <div className="flex flex-col">
+                        <span className="font-medium">{o.user?.name ?? "Unknown user"}</span>
+                        <span className="text-xs text-muted-foreground">{o.user?.email}</span>
+                        <span className="text-xs text-muted-foreground">ID: {o.user?.id}</span>
+                      </div>
+                    </TableCell>
                     <TableCell className="capitalize">{o.type}</TableCell>
                     <TableCell>{formatMoney(o.total, o.currency)}</TableCell>
                     <TableCell className="capitalize">{o.status}</TableCell>
