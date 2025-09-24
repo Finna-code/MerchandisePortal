@@ -5,13 +5,18 @@ import { OrderNotFoundError, OrderOwnershipError, getOrderForUser, serializeOrde
 
 import CheckoutFlow from "./checkout-flow";
 
-export default async function CheckoutOrderPage({ params }: { params: { orderId: string } }) {
+type CheckoutOrderPageProps = {
+  params: Promise<{ orderId: string }>;
+};
+
+export default async function CheckoutOrderPage({ params }: CheckoutOrderPageProps) {
   const session = await auth();
   if (!session?.user?.id) {
     redirect("/signin");
   }
 
-  const orderId = Number(params.orderId);
+  const resolvedParams = await params;
+  const orderId = Number(resolvedParams.orderId);
   if (!Number.isFinite(orderId)) {
     notFound();
   }

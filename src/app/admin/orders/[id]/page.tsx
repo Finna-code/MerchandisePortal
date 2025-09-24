@@ -5,13 +5,18 @@ import { OrderNotFoundError, getOrderWithRelations, serializeOrder } from "@/lib
 
 import AdminOrderDetail from "./admin-order-detail";
 
-export default async function AdminOrderDetailPage({ params }: { params: { id: string } }) {
+type AdminOrderDetailPageProps = {
+  params: Promise<{ id: string }>;
+};
+
+export default async function AdminOrderDetailPage({ params }: AdminOrderDetailPageProps) {
   const session = await auth();
   if (!session?.user || session.user.role !== "admin") {
     redirect("/signin");
   }
 
-  const orderId = Number(params.id);
+  const resolvedParams = await params;
+  const orderId = Number(resolvedParams.id);
   if (!Number.isFinite(orderId)) {
     notFound();
   }

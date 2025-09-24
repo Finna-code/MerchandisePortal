@@ -217,9 +217,12 @@ export default function CartView({ initialCart }: CartViewProps) {
 
       if (!res.ok) {
         const message =
-          payload && typeof payload === "object" && payload && "error" in payload && typeof (payload as Record<string, unknown>).error === "string"
-            ? (payload as Record<string, unknown>).error
-            : "We couldn't start checkout.";
+        payload &&
+        typeof payload === "object" &&
+        "error" in payload &&
+        typeof (payload as { error?: unknown }).error === "string"
+          ? (payload as { error: string }).error
+          : "We couldn't start checkout.";
         toast({
           variant: "destructive",
           title: "Checkout failed",

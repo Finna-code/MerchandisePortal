@@ -1,4 +1,4 @@
-﻿import { Prisma, type OrderItem } from "@prisma/client";
+import { Prisma, type OrderItem } from "@prisma/client";
 
 import { prisma } from "./db";
 import { formatMoney } from "./money";
@@ -201,14 +201,14 @@ export async function assertSufficientStock(
 export async function recordOrderEvent(
   orderId: number,
   type: string,
-  params: { meta?: Prisma.JsonValue; byUserId?: number } = {},
+  params: { meta?: Prisma.JsonValue | null; byUserId?: number } = {},
   db: Prisma.TransactionClient | typeof prisma = prisma,
 ) {
   await db.orderEvent.create({
     data: {
       orderId,
       type,
-      meta: params.meta,
+      meta: params.meta === null ? Prisma.JsonNull : params.meta,
       byUserId: params.byUserId,
     },
   });
