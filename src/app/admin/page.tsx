@@ -34,7 +34,11 @@ export default function AdminPage() {
 
   return (
     <main className="max-w-7xl mx-auto px-4 py-10">
-      <h1 className="text-3xl font-bold mb-8">Admin Dashboard</h1>
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold">Admin Panel</h1>
+        <p className="mt-2 text-muted-foreground">Manage products, orders, and users.</p>
+      </div>
+      <div className="mb-8 rounded-md border border-primary/20 bg-primary/10 px-4 py-3 text-sm text-primary">You are viewing the Admin Panel.</div>
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         <Card>
           <CardHeader>
@@ -95,3 +99,4 @@ export default function AdminPage() {
     </main>
   );
 }
+

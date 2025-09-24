@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -73,6 +74,11 @@ export default function AdminUsersPage() {
 
   return (
     <main className="max-w-7xl mx-auto px-4 py-8">
+      <nav className="mb-4 text-sm text-muted-foreground">
+        <Link href="/admin" className="font-medium text-foreground hover:underline">Admin Panel</Link>
+        <span className="mx-1">/</span>
+        <span>Users</span>
+      </nav>
       <h1 className="text-2xl font-bold mb-6">Manage Users</h1>
       <Card>
         <CardHeader>

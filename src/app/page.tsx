@@ -33,7 +33,7 @@ export default async function Home() {
             <Link
               href={!session ? "/products" : session?.user?.role === "admin" ? "/admin" : "/dashboard"}
             >
-              { !session ? "Shop Now" : session?.user?.role === "admin" ? "Admin Dashboard" : "Dashboard" }
+              { !session ? "Shop Now" : session?.user?.role === "admin" ? "Admin Panel" : "Dashboard" }
               <ArrowRight className="ml-2 h-5 w-5 transition-transform duration-150 group-hover:translate-x-0.5" />
             </Link>
           </Button>

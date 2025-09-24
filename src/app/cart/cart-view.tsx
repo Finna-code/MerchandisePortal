@@ -288,12 +288,12 @@ export default function CartView({ initialCart }: CartViewProps) {
           <CardContent className="pt-0">
             {cart.items.length === 0 ? (
               <div className="flex flex-col items-center justify-center gap-4 py-16 text-center">
-                <p className="text-lg font-medium">Your cart is empty</p>
-                <p className="max-w-sm text-sm text-muted-foreground">
-                  Explore the catalog and add products to see them appear here. Items stay synced to your account.
-                </p>
-                <Button asChild>
-                  <Link href="/products">Browse products</Link>
+                <div>
+                  <p className="text-lg font-semibold">Your cart is empty.</p>
+                  <p className="text-sm text-muted-foreground">Browse products and add items to get started.</p>
+                </div>
+                <Button asChild className="transition-all duration-150 hover:-translate-y-0.5 hover:shadow-sm focus-visible:shadow-sm">
+                  <Link href="/products">Browse Products</Link>
                 </Button>
               </div>
             ) : (

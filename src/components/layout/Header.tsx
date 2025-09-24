@@ -58,12 +58,17 @@ export function Header() {
             ) : (
               <>
                 {session && <NavLink href="/dashboard">Dashboard</NavLink>}
-                {isAdmin && <NavLink href="/admin">Admin</NavLink>}
+                {isAdmin && <NavLink href="/admin">Admin Panel</NavLink>}
               </>
             )}
           </nav>
         </div>
         <div className="flex items-center gap-2">
+          {isAdmin && (
+            <span className="rounded-full border border-primary/20 bg-primary/10 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-primary">
+              Admin
+            </span>
+          )}
           <ThemeToggle />
           <UserMenu />
         </div>

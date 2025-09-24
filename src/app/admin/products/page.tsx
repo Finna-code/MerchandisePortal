@@ -15,6 +15,7 @@ import { useToast } from "@/components/ui/toast";
 import ImageUpload from "@/components/admin/ImageUpload";
 import Image from "next/image";
 import DeleteImage from "@/components/admin/DeleteImage";
+import Link from "next/link";
 
 type Product = {
   id: number;
@@ -308,6 +309,11 @@ export default function AdminProductsPage() {
 
   return (
     <main className="max-w-7xl mx-auto px-4 py-8">
+      <nav className="mb-4 text-sm text-muted-foreground">
+        <Link href="/admin" className="font-medium text-foreground hover:underline">Admin Panel</Link>
+        <span className="mx-1">/</span>
+        <span>Products</span>
+      </nav>
       <h1 className="text-2xl font-bold mb-6">Manage Products</h1>
 
       <Card className="mb-8">

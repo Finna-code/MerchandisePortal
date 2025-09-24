@@ -8,7 +8,10 @@ export default async function DashboardPage() {
 
   return (
     <main className="max-w-7xl mx-auto px-4 py-10">
-      <h1 className="text-3xl font-bold mb-6">Welcome, {session.user.name || "User"}!</h1>
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold">Dashboard</h1>
+        <p className="mt-2 text-muted-foreground">Browse products, manage your cart, and view your orders.</p>
+      </div>
       <UserDashboard />
     </main>
   );
