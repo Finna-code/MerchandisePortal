@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { useSession } from "next-auth/react";
@@ -76,3 +76,4 @@ export function Header() {
     </header>
   );
 }
+

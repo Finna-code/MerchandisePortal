@@ -1,11 +1,14 @@
-// src/auth.ts
+﻿// src/auth.ts
 import NextAuth, { type Session } from "next-auth";
 import type { JWT } from "next-auth/jwt";
-import { type Role } from "@prisma/client";
 import Credentials from "next-auth/providers/credentials";
 import { z } from "zod";
 import { prisma } from "./lib/db";
 import bcrypt from "bcryptjs";
+
+type UserRole = "user" | "dept_head" | "admin";
+
+const ALLOW_UNVERIFIED_LOGIN = process.env.ALLOW_UNVERIFIED_LOGIN === "true";
 
 const credentialsSchema = z.object({
   email: z.string().email("Invalid email format"),
@@ -21,27 +24,36 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         password: { label: "Password", type: "password" },
       },
       authorize: async (credentials) => {
-        try {
-          const { email, password } = credentialsSchema.parse(credentials);
-          const user = await prisma.user.findUnique({ where: { email } });
+        const parsed = credentialsSchema.safeParse(credentials);
+        if (!parsed.success) {
+          throw new Error(parsed.error.issues?.[0]?.message ?? "Invalid credentials");
+        }
 
-          if (!user || !user.passwordHash) {
-            return null;
-          }
-
-          const isPasswordValid = await bcrypt.compare(
-            password,
-            user.passwordHash
-          );
-
-          if (!isPasswordValid) {
-            return null;
-          }
-          
-          return user;
-        } catch (error) {
+        const { email, password } = parsed.data;
+        const user = (await prisma.user.findUnique({ where: { email } })) as ({
+          id: number;
+          name: string | null;
+          email: string;
+          passwordHash: string;
+          role: UserRole;
+          deptId: number | null;
+          createdAt: Date;
+          emailVerifiedAt: Date | null;
+        }) | null;
+        if (!user || !user.passwordHash) {
           return null;
         }
+
+        const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
+        if (!isPasswordValid) {
+          return null;
+        }
+
+        if (!ALLOW_UNVERIFIED_LOGIN && !user.emailVerifiedAt) {
+          throw new Error("EMAIL_NOT_VERIFIED");
+        }
+
+        return user;
       },
     }),
   ],
@@ -50,7 +62,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (user) {
         // Ensure id is always a number
         token.id = typeof user.id === "string" ? parseInt(user.id, 10) : user.id;
-        token.role = user.role;
         token.deptId = user.deptId;
       }
       return token;
@@ -58,7 +69,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     session({ session, token }: { session: Session; token: JWT }) {
       if (token && session.user) {
         session.user.id = token.id;
-        session.user.role = token.role;
         session.user.deptId = token.deptId;
       }
       return session;
@@ -69,3 +79,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     signIn: "/signin",
   },
 });
+
+
+
+
+
+
+
+
+
+
+

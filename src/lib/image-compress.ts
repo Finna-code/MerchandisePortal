@@ -1,4 +1,4 @@
-// Compress to WebP under max dimensions and target KB.
+﻿// Compress to WebP under max dimensions and target KB.
 export async function compressImageToWebP(
   file: File,
   opts: { maxWidth?: number; maxHeight?: number; targetKB?: number; minQuality?: number } = {}
@@ -45,3 +45,4 @@ function canvasToBlob(canvas: HTMLCanvasElement, type: string, quality: number):
     canvas.toBlob((b) => (b ? resolve(b) : reject(new Error("toBlob failed"))), type, quality)
   );
 }
+

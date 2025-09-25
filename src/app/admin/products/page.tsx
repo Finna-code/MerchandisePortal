@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useMemo, useState } from "react";
 import { CATEGORIES } from "@/constants/categories";
@@ -352,7 +352,7 @@ export default function AdminProductsPage() {
                 className="h-full px-3 flex items-center justify-center hover:bg-accent
                  hover:text-accent-foreground disabled:opacity-40"
               >
-                −
+                âˆ’
               </button>
 
               <div className="relative flex-1 h-full">
@@ -436,7 +436,7 @@ export default function AdminProductsPage() {
                 className="h-full px-3 flex items-center justify-center hover:bg-accent
                  hover:text-accent-foreground disabled:opacity-40"
               >
-                −
+                âˆ’
               </button>
 
               <div className="relative flex-1 h-full">
@@ -520,3 +520,4 @@ export default function AdminProductsPage() {
     </main>
   );
 }
+

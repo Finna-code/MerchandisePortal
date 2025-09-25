@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+﻿import { NextResponse } from "next/server";
 import { del } from "@vercel/blob";
 import { blobPathFromUrl } from "@/lib/blob";
 
@@ -10,3 +10,4 @@ export async function POST(req: Request) {
   await del(target, { token: process.env.BLOB_READ_WRITE_TOKEN });
   return NextResponse.json({ ok: true });
 }
+

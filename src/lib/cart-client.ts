@@ -1,4 +1,4 @@
-import type { SerializedCart } from "@/types/cart";
+﻿import type { SerializedCart } from "@/types/cart";
 
 export type CartConflictPayload = {
   reason?: string;
@@ -70,3 +70,4 @@ export function deriveEmptyCart(previous: SerializedCart | null): SerializedCart
     total: 0,
   };
 }
+

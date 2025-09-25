@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/db";
+﻿import { prisma } from "@/lib/db";
 
 export async function GET() {
   try {
@@ -8,3 +8,4 @@ export async function GET() {
     return new Response("db error", { status: 500 });
   }
 }
+

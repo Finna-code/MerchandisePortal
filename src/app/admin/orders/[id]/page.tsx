@@ -1,4 +1,4 @@
-import { notFound, redirect } from "next/navigation";
+﻿import { notFound, redirect } from "next/navigation";
 
 import { auth } from "@/auth";
 import { OrderNotFoundError, getOrderWithRelations, serializeOrder } from "@/lib/orders";
@@ -32,3 +32,4 @@ export default async function AdminOrderDetailPage({ params }: AdminOrderDetailP
     throw error;
   }
 }
+

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -28,3 +28,4 @@ export function UserMenu() {
     </div>
   );
 }
+

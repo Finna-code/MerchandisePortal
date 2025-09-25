@@ -1,4 +1,4 @@
-// src/lib/guard.ts
+﻿// src/lib/guard.ts
 import { auth } from "@/auth";
 export async function requireRole(role: "admin" | "user" | "dept_head") {
   const s = await auth();
@@ -19,3 +19,4 @@ export async function requireAuth() {
   if (!s) return null;
   return s;
 }
+

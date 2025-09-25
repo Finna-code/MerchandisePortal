@@ -114,3 +114,16 @@ export default async function Home() {
     </main>
   );
 }
+function formatPrice(amount: unknown, currency?: string | null) {
+  const currencyCode = typeof currency === "string" && currency.length > 0 ? currency : "INR";
+  const numericAmount = typeof amount === "number" ? amount : Number(amount);
+  if (!Number.isFinite(numericAmount)) {
+    return typeof amount === "string" ? amount : String(amount ?? "");
+  }
+  return new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: currencyCode,
+    maximumFractionDigits: 2,
+  }).format(numericAmount);
+}
+

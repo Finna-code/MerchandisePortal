@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import * as React from "react";
 import * as RadixTooltip from "@radix-ui/react-tooltip";
@@ -29,3 +29,4 @@ export function TooltipContent({ className, ...props }: RadixTooltip.TooltipCont
     </RadixTooltip.Portal>
   );
 }
+

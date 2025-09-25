@@ -1,4 +1,4 @@
-export type SerializedCartItemProduct = {
+﻿export type SerializedCartItemProduct = {
   id: number;
   name: string;
   image: string | null;
@@ -24,4 +24,5 @@ export type SerializedCart = {
   itemCount: number;
   items: SerializedCartItem[];
 };
+
 

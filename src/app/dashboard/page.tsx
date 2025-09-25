@@ -1,4 +1,4 @@
-import { auth } from "@/auth";
+﻿import { auth } from "@/auth";
 import UserDashboard from "@/components/user-dashboard";
 import { redirect } from "next/navigation";
 
@@ -16,3 +16,4 @@ export default async function DashboardPage() {
     </main>
   );
 }
+

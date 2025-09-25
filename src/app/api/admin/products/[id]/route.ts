@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+﻿import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/guard";
 import { z, ZodError } from "zod";
@@ -63,3 +63,4 @@ export async function DELETE(_req: Request, { params }: { params: Promise<{ id: 
   const updated = await prisma.product.update({ where: { id }, data: { active: false } });
   return NextResponse.json(updated);
 }
+

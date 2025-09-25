@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+﻿import { NextRequest, NextResponse } from "next/server";
 import { OrderStatus } from "@prisma/client";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/db";
@@ -178,3 +178,4 @@ export async function DELETE(_: NextRequest, { params }: { params: Promise<{ ite
 
   return NextResponse.json({ cart: serializeCart(result.cart) });
 }
+

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -61,7 +61,7 @@ export default function DeleteImage({
         <AlertDialogHeader>
           <AlertDialogTitle>Delete image?</AlertDialogTitle>
           <AlertDialogDescription>
-            Are you sure? You can’t undelete an image!
+            Are you sure? You canâ€™t undelete an image!
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
@@ -72,3 +72,4 @@ export default function DeleteImage({
     </AlertDialog>
   );
 }
+

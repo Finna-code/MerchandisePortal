@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+﻿import { NextRequest, NextResponse } from "next/server";
 
 import { auth } from "@/auth";
 import { OrderNotFoundError, OrderOwnershipError, getOrderForUser, serializeOrder } from "@/lib/orders";
@@ -31,3 +31,4 @@ export async function GET(_: NextRequest, { params }: { params: Promise<{ id: st
     return NextResponse.json({ error: "Failed to load order" }, { status: 500 });
   }
 }
+

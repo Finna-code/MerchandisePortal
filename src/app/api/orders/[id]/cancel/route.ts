@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+﻿import { NextRequest, NextResponse } from "next/server";
 
 import { auth } from "@/auth";
 import { cancelPendingOrder } from "@/lib/order-actions";
@@ -36,3 +36,4 @@ export async function POST(_: NextRequest, { params }: { params: Promise<{ id: s
     return NextResponse.json({ error: "Failed to cancel order" }, { status: 500 });
   }
 }
+

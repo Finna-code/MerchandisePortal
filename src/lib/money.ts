@@ -1,4 +1,4 @@
-const DEFAULT_LOCALE = "en-IN";
+﻿const DEFAULT_LOCALE = "en-IN";
 
 const formatterCache = new Map<string, Intl.NumberFormat>();
 
@@ -23,4 +23,5 @@ export function getMoneyFormatter(currency: string, locale: string = DEFAULT_LOC
 export function formatMoney(minorUnits: number, currency: string, locale: string = DEFAULT_LOCALE) {
   return getMoneyFormatter(currency, locale)(minorUnits);
 }
+
 

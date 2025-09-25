@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+﻿import { NextResponse } from "next/server";
 import { OrderStatus } from "@prisma/client";
 
 import { prisma } from "@/lib/db";
@@ -34,3 +34,4 @@ export async function GET() {
 
   return NextResponse.json(orders);
 }
+

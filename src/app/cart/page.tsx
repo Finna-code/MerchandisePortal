@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { auth } from "@/auth";
 import { getOrCreateActiveCart, serializeCart } from "@/lib/cart";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -42,3 +42,4 @@ export default async function CartPage() {
     </main>
   );
 }
+

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import { useRef, useState } from "react";
 import { compressImageToWebP } from "@/lib/image-compress";
 import { Button } from "@/components/ui/button";
@@ -66,3 +66,4 @@ export default function ImageUpload({ onUploaded }: { onUploaded: (url: string) 
     </div>
   );
 }
+

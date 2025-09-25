@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+﻿import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
 import { requireAdmin } from "@/lib/guard";
@@ -98,3 +98,4 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 }
 
 export const PUT = POST;
+

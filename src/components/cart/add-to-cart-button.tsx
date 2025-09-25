@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useCallback, useState } from "react";
 import type { ComponentProps } from "react";
@@ -148,3 +148,4 @@ export function AddToCartButton({
     </Button>
   );
 }
+

@@ -1,4 +1,4 @@
-import { notFound, redirect } from "next/navigation";
+﻿import { notFound, redirect } from "next/navigation";
 
 import { auth } from "@/auth";
 import { OrderNotFoundError, OrderOwnershipError, getOrderForUser, serializeOrder } from "@/lib/orders";
@@ -35,3 +35,4 @@ export default async function CheckoutOrderPage({ params }: CheckoutOrderPagePro
     throw error;
   }
 }
+

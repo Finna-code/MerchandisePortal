@@ -1,4 +1,4 @@
-import { Prisma, type OrderItem } from "@prisma/client";
+﻿import { Prisma, type OrderItem } from "@prisma/client";
 
 import { prisma } from "./db";
 import { formatMoney } from "./money";
@@ -244,5 +244,6 @@ export function generateInvoiceNo(orderId: number) {
 
 
 export type SerializedOrder = ReturnType<typeof serializeOrder>;
+
 
 

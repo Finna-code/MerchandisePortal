@@ -1,10 +1,11 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
+import { Select, SelectItem } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Form,
@@ -18,6 +19,12 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/toast";
 import { formatMoney } from "@/lib/money";
 import type { SerializedOrder } from "@/lib/orders";
+
+const PICKUP_POINT_OPTIONS = [
+  "Campus Stationery - Block A",
+  "Campus Stationery - Auditorium Wing",
+  "Campus Stationery - Near CCD",
+] as const;
 
 type DeliveryFormValues = {
   line1: string;
@@ -86,6 +93,22 @@ export default function CheckoutFlow({ initialOrder }: { initialOrder: Serialize
   const [paymentIntent, setPaymentIntent] = useState<RazorpayIntent | null>(null);
   const [paymentMessage, setPaymentMessage] = useState<string | null>(null);
 
+  const resolvedPickupPoint = useMemo(() => {
+    const candidate = order.pickup?.point ?? "";
+    if (candidate && PICKUP_POINT_OPTIONS.includes(candidate as typeof PICKUP_POINT_OPTIONS[number])) {
+      return candidate;
+    }
+    return PICKUP_POINT_OPTIONS[0];
+  }, [order.pickup?.point]);
+
+  const availablePickupPoints = useMemo(() => {
+    const set = new Set<string>(PICKUP_POINT_OPTIONS);
+    if (order.pickup?.point) {
+      set.add(order.pickup.point);
+    }
+    return Array.from(set);
+  }, [order.pickup?.point]);
+
   const deliveryForm = useForm<DeliveryFormValues>({
     defaultValues: {
       line1: order.shipping?.line1 ?? "",
@@ -99,7 +122,7 @@ export default function CheckoutFlow({ initialOrder }: { initialOrder: Serialize
 
   const pickupForm = useForm<PickupFormValues>({
     defaultValues: {
-      point: order.pickup?.point ?? "",
+      point: resolvedPickupPoint,
       slotStart: toDateTimeLocal(order.pickup?.slotStart ?? null),
       slotEnd: toDateTimeLocal(order.pickup?.slotEnd ?? null),
     },
@@ -118,7 +141,9 @@ export default function CheckoutFlow({ initialOrder }: { initialOrder: Serialize
 
   useEffect(() => {
     pickupForm.reset({
-      point: order.pickup?.point ?? "",
+      point: order.pickup?.point && availablePickupPoints.includes(order.pickup.point)
+        ? order.pickup.point
+        : availablePickupPoints[0],
       slotStart: toDateTimeLocal(order.pickup?.slotStart ?? null),
       slotEnd: toDateTimeLocal(order.pickup?.slotEnd ?? null),
     });
@@ -404,7 +429,19 @@ export default function CheckoutFlow({ initialOrder }: { initialOrder: Serialize
                       <FormItem>
                         <FormLabel>Pickup point</FormLabel>
                         <FormControl>
-                          <Input placeholder="Desk name or address" {...field} disabled={isLocked || savingFulfillment === "pickup"} />
+                          <Select
+                            value={field.value || availablePickupPoints[0]}
+                            onValueChange={field.onChange}
+                            disabled={isLocked || savingFulfillment === "pickup"}
+                            className="w-full"
+                            placeholder="Select a pickup point"
+                          >
+                            {availablePickupPoints.map((option) => (
+                              <SelectItem key={option} value={option}>
+                                {option}
+                              </SelectItem>
+                            ))}
+                          </Select>
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -525,4 +562,16 @@ export default function CheckoutFlow({ initialOrder }: { initialOrder: Serialize
     </main>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
 

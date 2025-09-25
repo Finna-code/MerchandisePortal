@@ -10,7 +10,8 @@ type ProductLite = {
   id: number;
   name: string;
   description: string;
-  price: number;
+  price: number | string;
+  currency?: string | null;
   images: string[] | null;
 };
 
@@ -43,6 +44,7 @@ export default function ProductsPage() {
               if (Array.isArray(product.images) && typeof product.images[0] === "string") {
                 imageSrc = product.images[0];
               }
+              const priceDisplay = formatPrice(product.price, product.currency);
               return (
                 <div key={product.id} className="bg-card text-card-foreground border rounded-lg shadow-md p-4 flex flex-col items-center">
                   <Image
@@ -54,7 +56,7 @@ export default function ProductsPage() {
                   />
                   <h2 className="text-xl font-semibold mb-2 text-center">{product.name}</h2>
                   <p className="text-muted-foreground text-sm mb-2 text-center line-clamp-2">{product.description}</p>
-                  <div className="font-bold text-lg mb-2">₹{product.price?.toString?.() ?? product.price}</div>
+                  <div className="font-bold text-lg mb-2">{priceDisplay}</div>
                   <div className="mt-auto flex w-full flex-col gap-2">
                     <AddToCartButton productId={product.id} className="w-full" />
                     <Button
@@ -71,4 +73,17 @@ export default function ProductsPage() {
       </div>
     </main>
   );
+}
+
+function formatPrice(amount: number | string, currency?: string | null) {
+  const currencyCode = currency && currency.length > 0 ? currency : "INR";
+  const numericAmount = typeof amount === "number" ? amount : Number(amount);
+  if (!Number.isFinite(numericAmount)) {
+    return typeof amount === "string" ? amount : String(amount ?? "");
+  }
+  return new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: currencyCode,
+    maximumFractionDigits: 2,
+  }).format(numericAmount);
 }

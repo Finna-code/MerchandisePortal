@@ -44,6 +44,12 @@ enum ReviewVisibility {
   hidden
 }
 
+enum VerificationTokenType {
+  verify
+  reset
+  invite
+}
+
 model Dept {
   id     Int     @id @default(autoincrement())
   name   String  @unique
@@ -62,6 +68,9 @@ model User {
   orders       Order[]
   reviews      Review[]
   createdAt    DateTime @default(now())
+  emailVerifiedAt DateTime?
+  verificationTokens VerificationToken[]
+  invitesSent Invite[] @relation("InvitesSent")
   events       OrderEvent[]
 }
 
@@ -78,6 +87,8 @@ model Product {
   active      Boolean     @default(true)
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
+  ratingCount Int         @default(0)
+  ratingSum   Int         @default(0)
   items       OrderItem[]
   reviews     Review[]
 }
@@ -145,6 +156,9 @@ model Review {
   body       String
   visibility ReviewVisibility @default(public)
   createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+
+  @@unique([productId, userId])
 }
 
 model Payment {
@@ -180,3 +194,28 @@ model OrderEvent {
   meta      Json?
 }
 
+model VerificationToken {
+  id         Int                   @id @default(autoincrement())
+  type       VerificationTokenType
+  tokenHash  String                @unique
+  email      String?
+  userId     Int?
+  user       User?                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt  DateTime
+  createdAt  DateTime              @default(now())
+
+  @@index([type, email])
+  @@index([type, userId])
+}
+
+model Invite {
+  id          Int      @id @default(autoincrement())
+  email       String   @unique
+  role        Role     @default(user)
+  tokenHash   String   @unique
+  invitedById Int
+  invitedBy   User     @relation("InvitesSent", fields: [invitedById], references: [id])
+  expiresAt   DateTime
+  acceptedAt  DateTime?
+  createdAt   DateTime @default(now())
+}

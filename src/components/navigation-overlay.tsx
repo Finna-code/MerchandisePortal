@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { usePathname } from "next/navigation";
@@ -78,3 +78,4 @@ export default function NavigationOverlay() {
     document.body
   );
 }
+
