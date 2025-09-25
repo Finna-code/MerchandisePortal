@@ -63,6 +63,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         // Ensure id is always a number
         token.id = typeof user.id === "string" ? parseInt(user.id, 10) : user.id;
         token.deptId = user.deptId;
+        token.role = user.role;
       }
       return token;
     },
@@ -70,6 +71,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (token && session.user) {
         session.user.id = token.id;
         session.user.deptId = token.deptId;
+        session.user.role = token.role;
       }
       return session;
     },
