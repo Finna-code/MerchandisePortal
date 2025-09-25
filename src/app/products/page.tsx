@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { AddToCartButton } from "@/components/cart/add-to-cart-button";
+import { amountToMinorUnits, formatMoney } from "@/lib/money";
 
 type ProductLite = {
   id: number;
@@ -44,7 +45,10 @@ export default function ProductsPage() {
               if (Array.isArray(product.images) && typeof product.images[0] === "string") {
                 imageSrc = product.images[0];
               }
-              const priceDisplay = formatPrice(product.price, product.currency);
+              const currency = product.currency && product.currency.length > 0 ? product.currency : "INR";
+              const minorUnits = amountToMinorUnits(product.price);
+              const fallbackPrice = product.price?.toString?.() ?? String(product.price ?? "");
+              const priceDisplay = minorUnits !== null ? formatMoney(minorUnits, currency) : fallbackPrice;
               return (
                 <div key={product.id} className="bg-card text-card-foreground border rounded-lg shadow-md p-4 flex flex-col items-center">
                   <Image
@@ -75,15 +79,3 @@ export default function ProductsPage() {
   );
 }
 
-function formatPrice(amount: number | string, currency?: string | null) {
-  const currencyCode = currency && currency.length > 0 ? currency : "INR";
-  const numericAmount = typeof amount === "number" ? amount : Number(amount);
-  if (!Number.isFinite(numericAmount)) {
-    return typeof amount === "string" ? amount : String(amount ?? "");
-  }
-  return new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: currencyCode,
-    maximumFractionDigits: 2,
-  }).format(numericAmount);
-}

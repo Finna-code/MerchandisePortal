@@ -7,14 +7,14 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/components/ui/toast";
+import { formatDateTime } from "@/lib/datetime";
 import { formatMoney } from "@/lib/money";
 import type { SerializedOrder } from "@/lib/orders";
 
 type AdminAction = "mark_ready" | "mark_delivered" | "cancel";
 
 function formatDate(value?: string | null) {
-  if (!value) return "--";
-  return new Date(value).toLocaleString();
+  return formatDateTime(value ?? null);
 }
 
 function printWindow(title: string, body: string) {

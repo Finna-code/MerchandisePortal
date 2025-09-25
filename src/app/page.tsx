@@ -6,6 +6,7 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import Image from "next/image";
 import { auth } from "@/auth";
+import { amountToMinorUnits, formatMoney } from "@/lib/money";
 
 export default async function Home() {
   const session = await auth();
@@ -57,6 +58,10 @@ export default async function Home() {
                 if (Array.isArray(product.images) && typeof product.images[0] === "string") {
                   imageSrc = product.images[0];
                 }
+                const currency = typeof product.currency === "string" && product.currency.length > 0 ? product.currency : "INR";
+                const minorUnits = amountToMinorUnits(product.price);
+                const fallbackPrice = product.price?.toString?.() ?? String(product.price ?? "");
+                const priceDisplay = minorUnits !== null ? formatMoney(minorUnits, currency) : fallbackPrice;
                 return (
                   <Card
                     key={product.id}
@@ -83,7 +88,7 @@ export default async function Home() {
                       </p>
                       <div className="flex justify-between items-center mt-auto">
                         <span className="text-xl font-bold text-foreground">
-                          ₹{product.price?.toString?.() ?? product.price}
+                          {priceDisplay}
                         </span>
                         <Button asChild size="sm" className="ml-2 transition-all duration-150 hover:-translate-y-0.5 hover:shadow-sm focus-visible:shadow-sm">
                           <Link href={`/products/${product.id}`}>View Details</Link>
@@ -113,17 +118,5 @@ export default async function Home() {
       </footer>
     </main>
   );
-}
-function formatPrice(amount: unknown, currency?: string | null) {
-  const currencyCode = typeof currency === "string" && currency.length > 0 ? currency : "INR";
-  const numericAmount = typeof amount === "number" ? amount : Number(amount);
-  if (!Number.isFinite(numericAmount)) {
-    return typeof amount === "string" ? amount : String(amount ?? "");
-  }
-  return new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: currencyCode,
-    maximumFractionDigits: 2,
-  }).format(numericAmount);
 }
 

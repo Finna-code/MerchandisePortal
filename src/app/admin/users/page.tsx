@@ -4,6 +4,8 @@ import { useEffect, useMemo, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+
+import { formatDateTime } from "@/lib/datetime";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -277,7 +279,7 @@ export default function AdminUsersPage() {
                         )}
                       </div>
                     </TableCell>
-                    <TableCell>{new Date(u.createdAt).toLocaleString()}</TableCell>
+                    <TableCell>{formatDateTime(u.createdAt)}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -316,7 +318,7 @@ export default function AdminUsersPage() {
                     <TableCell>{invite.email}</TableCell>
                     <TableCell><Badge variant="secondary">{invite.role}</Badge></TableCell>
                     <TableCell>{invite.invitedBy.name ?? invite.invitedBy.email}</TableCell>
-                    <TableCell>{new Date(invite.expiresAt).toLocaleString()}</TableCell>
+                    <TableCell>{formatDateTime(invite.expiresAt)}</TableCell>
                     <TableCell className="text-right">
                       <Button
                         variant="outline"

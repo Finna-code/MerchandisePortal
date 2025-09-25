@@ -7,6 +7,7 @@ import { AddToCartButton } from "@/components/cart/add-to-cart-button";
 import { ProductReviews } from "@/components/reviews/ProductReviews";
 import { Button } from "@/components/ui/button";
 import { prisma } from "@/lib/db";
+import { amountToMinorUnits, formatMoney } from "@/lib/money";
 
 export default async function ProductDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id: idParam } = await params;
@@ -37,11 +38,10 @@ export default async function ProductDetailsPage({ params }: { params: Promise<{
   const firstImage = Array.isArray(product.images) ? product.images[0] : undefined;
   const imageSrc = typeof firstImage === "string" && firstImage.length > 0 ? firstImage : "/logo.svg";
 
-  const priceNumber = typeof product.price === "number" ? product.price : Number(product.price);
-  const currency = product.currency ?? "INR";
-  const formattedPrice = Number.isFinite(priceNumber)
-    ? new Intl.NumberFormat("en-IN", { style: "currency", currency }).format(priceNumber)
-    : product.price?.toString?.() ?? String(product.price);
+  const currency = typeof product.currency === "string" && product.currency.length > 0 ? product.currency : "INR";
+  const minorUnits = amountToMinorUnits(product.price);
+  const fallbackPrice = product.price?.toString?.() ?? String(product.price ?? "");
+  const formattedPrice = minorUnits !== null ? formatMoney(minorUnits, currency) : fallbackPrice;
 
   const ratingSummary = {
     ratingCount: product.ratingCount ?? 0,

@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/toast";
+import { formatDateTime } from "@/lib/datetime";
 import { formatMoney } from "@/lib/money";
 import type { SerializedOrder } from "@/lib/orders";
 
@@ -530,7 +531,7 @@ export default function CheckoutFlow({ initialOrder }: { initialOrder: Serialize
                   <p className="font-medium text-green-700">Payment received.</p>
                   {order.invoiceNo && <p className="text-muted-foreground">Invoice #{order.invoiceNo}</p>}
                   {order.timestamps.paidAt && (
-                    <p className="text-muted-foreground">Paid at {new Date(order.timestamps.paidAt).toLocaleString()}</p>
+                    <p className="text-muted-foreground">Paid at {formatDateTime(order.timestamps.paidAt)}</p>
                   )}
                   <Button variant="outline" onClick={() => router.push("/products")}>Continue shopping</Button>
                 </div>
